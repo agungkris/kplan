@@ -32,7 +32,7 @@
   --lane:34px;
 }
 *{box-sizing:border-box}
-html,body{margin:0;padding:0}
+html,body{margin:0;padding:0;height:100%}
 body{
   background:var(--paper);
   color:var(--ink);
@@ -41,12 +41,16 @@ body{
   line-height:1.45;
   font-feature-settings:"tnum" 1;
   -webkit-font-smoothing:antialiased;
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
 }
 button{font:inherit;color:inherit;cursor:pointer}
 input,select{font:inherit;color:inherit}
 
 /* ---------- top bar ---------- */
-.top{background:var(--ink);color:#fff;padding:14px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.top{background:var(--ink);color:#fff;padding:14px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;flex:0 0 auto}
 .brand{display:flex;flex-direction:column;gap:2px;margin-right:auto;min-width:0}
 #title{background:transparent;border:0;outline:0;color:#fff;font-size:19px;font-weight:600;letter-spacing:-.01em;padding:2px 6px;margin-left:-6px;border-radius:6px;width:100%;max-width:420px}
 #title:hover{background:rgba(255,255,255,.08)}
@@ -64,14 +68,14 @@ input,select{font:inherit;color:inherit}
 .btn.primary:hover{background:#E8ECF5}
 
 /* ---------- legend ---------- */
-.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--line);flex:0 0 auto}
 .lg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft)}
 .sw{width:16px;height:10px;border-radius:3px}
 .sw.dia{width:11px;height:11px;border-radius:2px;transform:rotate(45deg)}
 .legend .hint{margin-left:auto;color:var(--muted);font-size:12px}
 
 /* ---------- filter bar ---------- */
-.filterbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:9px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:9px 20px;background:var(--surface);border-bottom:1px solid var(--line);flex:0 0 auto}
 .filterbar .flabel{font-size:12.5px;color:var(--muted);margin-right:2px}
 .filt{position:relative}
 .filt summary{
@@ -95,11 +99,11 @@ input,select{font:inherit;color:inherit}
 .fclear:hover{color:var(--ink)}
 
 /* ---------- board ---------- */
-.wrap{padding:18px 20px 90px}
-.board{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow-x:auto;overflow-y:visible}
+.wrap{padding:14px 20px;flex:1 1 auto;min-height:0;display:flex}
+.board{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:auto;flex:1 1 auto;min-height:0}
 .inner{min-width:max-content}
 .row{display:grid;grid-template-columns:var(--namew) repeat(var(--n),minmax(var(--colmin),1fr))}
-.head-year,.head-quarter,.head-sprint,.head-week{position:sticky;z-index:5;background:var(--surface)}
+.head-year,.head-quarter,.head-sprint,.head-week{position:sticky;top:0;z-index:5;background:var(--surface)}
 .head-year .hc{text-align:center;padding:8px 8px 4px;font-weight:600;font-size:13px;border-left:1px solid var(--line);color:var(--ink)}
 .head-quarter .hc{text-align:center;padding:3px 8px;font-size:11.5px;font-weight:500;color:var(--ink-soft);border-left:1px solid var(--line)}
 .head-sprint .hc{
@@ -114,6 +118,8 @@ input,select{font:inherit;color:inherit}
 .head-week .hc.now b{color:#8A5A0E}
 .head-year .corner,.head-quarter .corner,.head-sprint .corner,.head-week .corner{position:sticky;left:0;z-index:6;background:var(--surface);padding:8px 14px;font-size:12px;color:var(--muted)}
 .head-week .corner{border-bottom:1px solid var(--line-strong)}
+.qb{border-left-width:2px!important;border-left-color:#9AA6BE!important}
+.head-quarter .hc.qb{border-left-color:var(--ink)!important}
 
 .item{border-top:1px solid var(--line)}
 .item:first-of-type{border-top:0}
@@ -197,7 +203,7 @@ textarea#csv{width:100%;height:180px;border:1px solid var(--line-strong);border-
 
 @media(max-width:640px){
   :root{--namew:168px;--colmin:64px}
-  .wrap{padding:12px 12px 80px}
+  .wrap{padding:10px 12px}
   .top{padding:12px 14px;gap:10px}
   .legend{padding:9px 14px;gap:10px}
   .legend .hint{display:none}
@@ -206,11 +212,12 @@ textarea#csv{width:100%;height:180px;border:1px solid var(--line-strong);border-
 }
 @media print{
   .top .acts,.range,.legend .hint,.filterbar,.name .tools,.grip{display:none!important}
+  html,body{height:auto;overflow:visible;display:block}
   body{background:#fff}
   .top{background:#fff;color:var(--ink);border-bottom:2px solid var(--ink)}
   #title{color:var(--ink)}
-  .board{overflow:visible;border-color:var(--line-strong)}
-  .wrap{padding:0}
+  .wrap{display:block;overflow:visible;padding:0}
+  .board{overflow:visible;border-color:var(--line-strong);height:auto;max-height:none}
 }
 </style>
 </head>
@@ -276,8 +283,8 @@ textarea#csv{width:100%;height:180px;border:1px solid var(--line-strong);border-
       <input type="text" id="it-name" placeholder="Misal: Redesain dashboard laporan">
     </div>
     <div class="f">
-      <label for="it-pic">User / Requestor <span style="color:var(--muted);font-weight:400">(opsional)</span></label>
-      <input type="text" id="it-pic" placeholder="Misal: dr. Andi — Poli Anak">
+      <div class="f-head"><label for="it-pic">User / Requestor</label><button type="button" class="linklike" data-act="mg-requestor">Kelola requestor</button></div>
+      <select id="it-pic"></select>
     </div>
     <div class="f">
       <div class="f-head"><label for="it-squad">Squad</label><button type="button" class="linklike" data-act="mg-squad">Kelola squad</button></div>
@@ -518,6 +525,12 @@ function defaultCategories(){ return [
   {id:"initiative",label:"Initiative",color:"#2F6FE0"},
   {id:"issue",label:"Issue Production",color:"#C0392B"}
 ]; }
+function defaultRequestors(){ return [
+  {id:"patient-exp",label:"Patient Experience",color:"#2563EB"},
+  {id:"casemix",label:"Casemix",color:"#7C4FD6"},
+  {id:"medis",label:"Medis",color:"#0E9C8A"},
+  {id:"marketing",label:"Marketing",color:"#C2703D"}
+]; }
 
 /* roadmap kosong untuk tahun tertentu (dipakai saat "+ Tahun baru") */
 function blankRoadmap(year){
@@ -526,7 +539,7 @@ function blankRoadmap(year){
     anchorDate: snapToWeekday(Date.UTC(year,0,1)),
     sprintDur:{}, numberAnchor:{pos:0, number:1},
     start:0, count:6,
-    statuses:defaultStatuses(), squads:defaultSquads(), categories:defaultCategories(),
+    statuses:defaultStatuses(), squads:defaultSquads(), categories:defaultCategories(), requestors:defaultRequestors(),
     items:[]
   };
 }
@@ -539,9 +552,9 @@ function sample(){
     anchorDate: snapToWeekday(NOW_MS),
     sprintDur:{}, numberAnchor:{pos:0, number:1},
     start:s0, count:6,
-    statuses:defaultStatuses(), squads:defaultSquads(), categories:defaultCategories(),
+    statuses:defaultStatuses(), squads:defaultSquads(), categories:defaultCategories(), requestors:defaultRequestors(),
     items:[
-      {id:uid(), name:"Redesain SimQ Report", pic:"Tim Produk", squad:"ai", status:"inprogress", category:"initiative", phases:[
+      {id:uid(), name:"Redesain SimQ Report", pic:"casemix", squad:"ai", status:"inprogress", category:"initiative", phases:[
         {id:uid(),type:"assessment",s:t(s0,0),e:t(s0,0)},
         {id:uid(),type:"development",s:t(s0,1),e:t(s0+1,1)},
         {id:uid(),type:"testing",s:t(s0+2,0),e:t(s0+2,0)},
@@ -549,13 +562,13 @@ function sample(){
         {id:uid(),type:"sosialisasi",s:t(s0+3,0),e:t(s0+3,0)},
         {id:uid(),type:"golive",s:t(s0+3,1),e:t(s0+3,1)}
       ]},
-      {id:uid(), name:"Modul antrean pasien", pic:"Tim Operasional", squad:"ops", status:"todo", category:"initiative", phases:[
+      {id:uid(), name:"Modul antrean pasien", pic:"", squad:"ops", status:"todo", category:"initiative", phases:[
         {id:uid(),type:"assessment",s:t(s0+1,0),e:t(s0+1,0)},
         {id:uid(),type:"development",s:t(s0+1,1),e:t(s0+2,1)},
         {id:uid(),type:"testing",s:t(s0+3,0),e:t(s0+3,0)},
         {id:uid(),type:"golive",s:t(s0+3,1),e:t(s0+3,1)}
       ]},
-      {id:uid(), name:"Integrasi pembayaran", pic:"", squad:"pf", status:"hold", category:"cr", phases:[
+      {id:uid(), name:"Integrasi pembayaran", pic:"marketing", squad:"pf", status:"hold", category:"cr", phases:[
         {id:uid(),type:"assessment",s:t(s0+2,0),e:t(s0+2,0)},
         {id:uid(),type:"development",s:t(s0+2,1),e:t(s0+3,1)}
       ]}
@@ -587,7 +600,7 @@ async function kvSet(key, value){
 }
 
 function normalizeState(d){
-  d.statuses=d.statuses||[]; d.squads=d.squads||[]; d.categories=d.categories||[];
+  d.statuses=d.statuses||[]; d.squads=d.squads||[]; d.categories=d.categories||[]; d.requestors=d.requestors||[];
   d.sprintDur=d.sprintDur||{}; d.numberAnchor=d.numberAnchor||{pos:0,number:1};
   d.items = Array.isArray(d.items) ? d.items : [];
   return d;
@@ -646,21 +659,10 @@ function renderLegend(){
 }
 
 /* ---------- filter bar ---------- */
-function distinctPics(){
-  const set = new Set();
-  state.items.forEach(it=>{ set.add(it.pic ? it.pic.trim() : ""); });
-  return [...set].sort((a,b)=> a===""?1:b===""?-1:a.localeCompare(b));
-}
-const FILTER_STATE_KEY = {status:"statuses", squad:"squads", category:"categories"};
+const FILTER_STATE_KEY = {status:"statuses", squad:"squads", category:"categories", pic:"requestors"};
 function filterGroup(kind, label){
-  let opts, getKey, getColor, getLabel;
-  if(kind==="pic"){
-    opts = distinctPics();
-    getKey = v=>v; getColor=()=>"#8892A6"; getLabel=v=> v===""?"(Tanpa requestor)":v;
-  } else {
-    opts = state[FILTER_STATE_KEY[kind]];
-    getKey = t=>t.id; getColor=t=>t.color; getLabel=t=>t.label;
-  }
+  const opts = state[FILTER_STATE_KEY[kind]];
+  const getKey = t=>t.id, getColor = t=>t.color, getLabel = t=>t.label;
   const activeSet = filters[kind];
   const active = activeSet.size>0;
   const body = opts.length ? opts.map(o=>{
@@ -695,7 +697,7 @@ function passesFilters(it){
   return (filters.status.size===0 || filters.status.has(it.status||"")) &&
          (filters.squad.size===0 || filters.squad.has(it.squad||"")) &&
          (filters.category.size===0 || filters.category.has(it.category||"")) &&
-         (filters.pic.size===0 || filters.pic.has((it.pic||"").trim()));
+         (filters.pic.size===0 || filters.pic.has(it.pic||""));
 }
 
 /* ---------- sort: assessment terdekat dulu ---------- */
@@ -758,7 +760,8 @@ function render(){
   const quarterGroups = groupConsecutive(table, c=> Math.floor(new Date(c.wStart).getUTCMonth()/3)+1);
   col=2;
   const quarterRow = `<div class="row head-quarter"><div class="corner"></div>` +
-    quarterGroups.map(g=>{ const c=col; col+=g.span; return `<div class="hc" style="grid-column:${c} / span ${g.span}">Kuartal ${g.k}</div>`; }).join("") + `</div>`;
+    quarterGroups.map(g=>{ const c=col; col+=g.span; return `<div class="hc qb" style="grid-column:${c} / span ${g.span}">Kuartal ${g.k}</div>`; }).join("") + `</div>`;
+  const qStarts = new Set(); { let idx=0; quarterGroups.forEach(g=>{ qStarts.add(idx); idx+=g.span; }); }
 
   // baris sprint
   const sprintGroups = groupConsecutive(table, c=>c.sprintPos);
@@ -772,7 +775,7 @@ function render(){
   let weekRow = `<div class="row head-week"><div class="corner">${n} minggu</div>`;
   table.forEach((c,i)=>{
     const now = NOW_MS>=c.wStart && NOW_MS<=c.wEnd;
-    weekRow += `<div class="hc ${now?'now':''}" style="grid-column:${i+2}"><b>W${c.isoNo}</b><small>${fmtD(c.wStart)} - ${fmtD(c.wEnd)}${now?' · kini':''}</small></div>`;
+    weekRow += `<div class="hc ${now?'now':''} ${qStarts.has(i)?'qb':''}" style="grid-column:${i+2}"><b>W${c.isoNo}</b><small>${fmtD(c.wStart)} - ${fmtD(c.wEnd)}${now?' · kini':''}</small></div>`;
   });
   weekRow += `</div>`;
 
@@ -784,11 +787,12 @@ function render(){
   } else {
     body = visible.map(it=>{
       const L = lanes(it.phases);
+      const totalLanes = L+1; // selalu sisakan 1 baris kosong untuk menambah fase baru
       const outside = it.phases.filter(p=>p.e<first || p.s>last).length;
       let cells="";
-      for(let l=0;l<L;l++){
+      for(let l=0;l<totalLanes;l++){
         table.forEach((c,i)=>{
-          cells += `<button class="cell ${NOW_MS>=c.wStart&&NOW_MS<=c.wEnd?'now':''}" style="grid-column:${i+2};grid-row:${l+1}"
+          cells += `<button class="cell ${NOW_MS>=c.wStart&&NOW_MS<=c.wEnd?'now':''} ${qStarts.has(i)?'qb':''}" style="grid-column:${i+2};grid-row:${l+1}"
             data-act="cell" data-item="${it.id}" data-q="${c.flat}" aria-label="Tambah fase pada minggu W${c.isoNo}"></button>`;
         });
       }
@@ -808,13 +812,12 @@ function render(){
           style="grid-column:${ls+2} / span ${le-ls+1};grid-row:${(p._lane||0)+1};background:${meta.color}" title="${esc(tip)}">${grips}${inside}</button>`;
       }).join("");
 
-      const badges = badge("statuses",it.status) + badge("squads",it.squad) + badge("categories",it.category);
+      const badges = badge("statuses",it.status) + badge("squads",it.squad) + badge("categories",it.category) + badge("requestors",it.pic);
 
       return `<div class="row item" data-row="${it.id}" style="grid-auto-rows:minmax(var(--lane),auto)">
-        <div class="name" style="grid-row:1 / span ${L}">
+        <div class="name" style="grid-row:1 / span ${totalLanes}">
           <span class="n">${esc(it.name)}</span>
           ${badges ? `<span class="badges">${badges}</span>` : ""}
-          ${it.pic ? `<span class="pic">${esc(it.pic)}</span>`:""}
           ${outside ? `<span class="off">${outside} fase di luar rentang</span>`:""}
           <span class="tools">
             <button class="tool" data-act="add-phase" data-item="${it.id}" title="Tambah fase">+</button>
@@ -885,7 +888,7 @@ function openItem(id){
   const it = id ? findItem(id) : null;
   document.getElementById("it-title").textContent = it ? "Ubah project/fitur" : "Tambah project/fitur";
   document.getElementById("it-name").value = it ? it.name : "";
-  document.getElementById("it-pic").value  = it ? (it.pic||"") : "";
+  fillTagSelect("it-pic","requestors", it?it.pic:"");
   fillTagSelect("it-squad","squads", it?it.squad:"");
   fillTagSelect("it-cat","categories", it?it.category:"");
   fillTagSelect("it-status","statuses", it?it.status:(state.statuses[0]?state.statuses[0].id:""));
@@ -900,8 +903,8 @@ function commit(){ render(); save(); }
 
 /* ---------- kelola status / squad / kategori ---------- */
 let mgCtx=null;
-const MG_TITLES = {statuses:"Kelola status", squads:"Kelola squad", categories:"Kelola kategori"};
-const MG_FIELD  = {statuses:"status", squads:"squad", categories:"category"};
+const MG_TITLES = {statuses:"Kelola status", squads:"Kelola squad", categories:"Kelola kategori", requestors:"Kelola requestor"};
+const MG_FIELD  = {statuses:"status", squads:"squad", categories:"category", requestors:"pic"};
 function openManage(kind){
   mgCtx=kind;
   document.getElementById("mg-title").textContent = MG_TITLES[kind];
@@ -938,7 +941,8 @@ document.getElementById("mg-add").addEventListener("click", ()=>{
 document.getElementById("mg-close").addEventListener("click", ()=>{
   hide("ov-manage");
   if(document.getElementById("ov-item").classList.contains("on")){
-    const sq=document.getElementById("it-squad").value, ca=document.getElementById("it-cat").value, st=document.getElementById("it-status").value;
+    const pc=document.getElementById("it-pic").value, sq=document.getElementById("it-squad").value, ca=document.getElementById("it-cat").value, st=document.getElementById("it-status").value;
+    fillTagSelect("it-pic","requestors", findTag("requestors",pc)?pc:"");
     fillTagSelect("it-squad","squads", findTag("squads",sq)?sq:"");
     fillTagSelect("it-cat","categories", findTag("categories",ca)?ca:"");
     fillTagSelect("it-status","statuses", findTag("statuses",st)?st:"");
@@ -1022,6 +1026,7 @@ document.addEventListener("click", e=>{
   if(act==="mg-squad") openManage("squads");
   if(act==="mg-status") openManage("statuses");
   if(act==="mg-category") openManage("categories");
+  if(act==="mg-requestor") openManage("requestors");
   if(act==="open-sprint") openSprintModal(+t.dataset.pos);
 });
 
@@ -1091,7 +1096,7 @@ document.getElementById("ph-cancel").addEventListener("click", ()=>hide("ov-phas
 /* ---------- form project/fitur ---------- */
 document.getElementById("it-save").addEventListener("click", ()=>{
   const name=document.getElementById("it-name").value.trim() || "Project/fitur tanpa nama";
-  const pic=document.getElementById("it-pic").value.trim();
+  const pic=document.getElementById("it-pic").value;
   const squad=document.getElementById("it-squad").value;
   const category=document.getElementById("it-cat").value;
   const status=document.getElementById("it-status").value;
