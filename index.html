@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roadmap Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --ink:#14213A;
+  --ink-soft:#4A5670;
+  --muted:#8892A6;
+  --paper:#F7F8FA;
+  --surface:#FFFFFF;
+  --line:#E2E6EF;
+  --line-strong:#CDD4E2;
+  --now:#FFF6E0;
+  --danger:#C0392B;
+
+  --c-assessment:#6B7A99;
+  --c-development:#2F5FE0;
+  --c-testing:#7B4FD6;
+  --c-uat:#E0742F;
+  --c-sosialisasi:#0E9C8A;
+  --c-golive:#16A34A;
+
+  --namew:250px;
+  --colmin:74px;
+  --lane:34px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Archivo',system-ui,-apple-system,"Segoe UI",sans-serif;
+  font-size:14px;
+  line-height:1.45;
+  font-feature-settings:"tnum" 1;
+  -webkit-font-smoothing:antialiased;
+}
+button{font:inherit;color:inherit;cursor:pointer}
+input,select{font:inherit;color:inherit}
+
+/* ---------- top bar ---------- */
+.top{background:var(--ink);color:#fff;padding:14px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.brand{display:flex;flex-direction:column;gap:2px;margin-right:auto;min-width:0}
+#title{background:transparent;border:0;outline:0;color:#fff;font-size:19px;font-weight:600;letter-spacing:-.01em;padding:2px 6px;margin-left:-6px;border-radius:6px;width:100%;max-width:420px}
+#title:hover{background:rgba(255,255,255,.08)}
+#title:focus{background:rgba(255,255,255,.14);box-shadow:0 0 0 2px rgba(255,255,255,.4)}
+.brand small{color:#9FAAC4;font-size:12px}
+.range{display:flex;align-items:center;gap:6px;color:#C6CEE0;font-size:13px;flex-wrap:wrap}
+.range select,.range input{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);color:#fff;border-radius:7px;padding:5px 7px;font-size:13px}
+.range select option{color:#14213A}
+.range input[type=number]{width:50px;text-align:center}
+.range input[type=date]{color-scheme:dark}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:500;white-space:nowrap}
+.btn:hover{background:rgba(255,255,255,.16)}
+.btn.primary{background:#fff;color:var(--ink);border-color:#fff;font-weight:600}
+.btn.primary:hover{background:#E8ECF5}
+
+/* ---------- legend ---------- */
+.legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;padding:10px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.lg{display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-soft)}
+.sw{width:16px;height:10px;border-radius:3px}
+.sw.dia{width:11px;height:11px;border-radius:2px;transform:rotate(45deg)}
+.legend .hint{margin-left:auto;color:var(--muted);font-size:12px}
+
+/* ---------- filter bar ---------- */
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:9px 20px;background:var(--surface);border-bottom:1px solid var(--line)}
+.filterbar .flabel{font-size:12.5px;color:var(--muted);margin-right:2px}
+.filt{position:relative}
+.filt summary{
+  list-style:none;cursor:pointer;border:1px solid var(--line-strong);border-radius:20px;
+  padding:6px 12px;font-size:12.5px;color:var(--ink-soft);background:var(--surface);
+  display:flex;align-items:center;gap:5px;user-select:none;
+}
+.filt summary::-webkit-details-marker{display:none}
+.filt summary::after{content:'▾';font-size:9px;color:var(--muted)}
+.filt[open] summary{border-color:var(--ink);color:var(--ink);background:#EEF1F7}
+.filt.active summary{border-color:var(--ink);font-weight:600;color:var(--ink)}
+.fpanel{
+  position:absolute;top:calc(100% + 6px);left:0;background:var(--surface);border:1px solid var(--line-strong);
+  border-radius:10px;box-shadow:0 8px 24px rgba(20,33,58,.14);padding:8px;min-width:190px;max-height:260px;overflow:auto;z-index:20;
+}
+.fopt{display:flex;align-items:center;gap:8px;padding:6px 6px;border-radius:6px;font-size:13px;cursor:pointer}
+.fopt:hover{background:#F2F4F9}
+.fopt i{width:8px;height:8px;border-radius:50%;flex:0 0 auto}
+.fopt input{margin:0}
+.fclear{margin-left:2px;background:none;border:0;color:var(--ink-soft);text-decoration:underline;font-size:12px;padding:4px 2px}
+.fclear:hover{color:var(--ink)}
+
+/* ---------- board ---------- */
+.wrap{padding:18px 20px 90px}
+.board{background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow-x:auto;overflow-y:visible}
+.inner{min-width:max-content}
+.row{display:grid;grid-template-columns:var(--namew) repeat(var(--n),minmax(var(--colmin),1fr))}
+.head-year,.head-quarter,.head-sprint,.head-week{position:sticky;z-index:5;background:var(--surface)}
+.head-year .hc{text-align:center;padding:8px 8px 4px;font-weight:600;font-size:13px;border-left:1px solid var(--line);color:var(--ink)}
+.head-quarter .hc{text-align:center;padding:3px 8px;font-size:11.5px;font-weight:500;color:var(--ink-soft);border-left:1px solid var(--line)}
+.head-sprint .hc{
+  text-align:center;padding:5px 8px;font-size:12.5px;font-weight:600;color:var(--ink-soft);
+  border-left:1px solid var(--line);cursor:pointer;
+}
+.head-sprint .hc:hover{background:#EEF1F7;color:var(--ink)}
+.head-week .hc{text-align:center;padding:5px 4px 8px;border-left:1px solid var(--line);border-bottom:1px solid var(--line-strong);display:flex;flex-direction:column;gap:1px}
+.head-week .hc b{font-size:11.5px;font-weight:600;color:var(--ink)}
+.head-week .hc small{font-size:9.5px;color:var(--muted);font-weight:400}
+.head-week .hc.now{background:var(--now);border-radius:5px 5px 0 0}
+.head-week .hc.now b{color:#8A5A0E}
+.head-year .corner,.head-quarter .corner,.head-sprint .corner,.head-week .corner{position:sticky;left:0;z-index:6;background:var(--surface);padding:8px 14px;font-size:12px;color:var(--muted)}
+.head-week .corner{border-bottom:1px solid var(--line-strong)}
+
+.item{border-top:1px solid var(--line)}
+.item:first-of-type{border-top:0}
+.name{
+  grid-column:1;position:sticky;left:0;z-index:4;background:var(--surface);
+  padding:11px 12px 11px 14px;border-right:1px solid var(--line-strong);
+  display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0;
+}
+.name .n{font-weight:600;font-size:13.5px;line-height:1.3;overflow-wrap:anywhere}
+.name .pic{font-size:11.5px;color:var(--muted)}
+.name .off{font-size:11px;color:#B7822A}
+.badges{display:flex;flex-wrap:wrap;gap:5px}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-soft);background:#EEF1F7;border-radius:20px;padding:2px 8px 2px 6px;white-space:nowrap}
+.badge i{width:7px;height:7px;border-radius:50%;background:var(--bc);display:block;flex:0 0 auto}
+.name .tools{display:flex;gap:4px;margin-top:2px}
+.tool{border:1px solid var(--line-strong);background:var(--surface);border-radius:6px;width:24px;height:22px;line-height:1;font-size:13px;color:var(--ink-soft);display:inline-flex;align-items:center;justify-content:center;padding:0}
+.tool:hover{background:#EEF1F7;color:var(--ink)}
+.cell{border-left:1px solid var(--line);background:transparent;padding:0;border-top:0;border-right:0;border-bottom:0;min-height:var(--lane)}
+.cell.now{background:var(--now)}
+.cell:hover{background:#EDF1FA}
+.cell.now:hover{background:#F7EFDA}
+
+.bar{z-index:2;margin:3px 3px;border:0;border-radius:6px;color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;padding:0 8px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;position:relative;text-align:left}
+.bar span{overflow:hidden;text-overflow:ellipsis}
+.bar:focus-visible{outline:2px solid var(--ink);outline-offset:1px}
+.bar.clip-l{border-top-left-radius:0;border-bottom-left-radius:0;box-shadow:inset 3px 0 0 rgba(255,255,255,.5)}
+.bar.clip-r{border-top-right-radius:0;border-bottom-right-radius:0;box-shadow:inset -3px 0 0 rgba(255,255,255,.5)}
+.bar.dragging{opacity:.9;box-shadow:0 4px 14px rgba(20,33,58,.28)}
+.grip{position:absolute;top:0;bottom:0;width:8px;cursor:ew-resize;opacity:0;background:rgba(255,255,255,.55)}
+.grip.l{left:0;border-radius:6px 0 0 6px}
+.grip.r{right:0;border-radius:0 6px 6px 0}
+.bar:hover .grip{opacity:1}
+.bar.ms{background:transparent!important;color:var(--c-golive);font-weight:600;justify-content:flex-start;gap:6px;padding-left:4px}
+.bar.ms i{width:11px;height:11px;background:var(--c-golive);transform:rotate(45deg);border-radius:2px;flex:0 0 auto}
+
+.empty{padding:56px 24px;text-align:center}
+.empty h2{font-size:17px;margin:0 0 6px;font-weight:600}
+.empty p{margin:0 0 18px;color:var(--muted);font-size:13.5px}
+.btn-dark{background:var(--ink);color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:600;font-size:13.5px}
+
+/* ---------- modal ---------- */
+.overlay{position:fixed;inset:0;background:rgba(20,33,58,.42);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+.overlay.on{display:flex}
+.overlay.top{z-index:60}
+.sheet{background:var(--surface);width:100%;max-width:460px;border-radius:16px 16px 0 0;padding:20px;box-shadow:0 -8px 40px rgba(20,33,58,.25);max-height:92vh;overflow:auto}
+@media(min-width:640px){.overlay{align-items:center}.sheet{border-radius:14px}}
+.sheet h3{margin:0 0 4px;font-size:16px;font-weight:600}
+.sheet .sub{margin:0 0 16px;font-size:12.5px;color:var(--muted)}
+.f{margin-bottom:14px}
+.f label{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:5px;font-weight:500}
+.f-head{display:flex;justify-content:space-between;align-items:baseline}
+.f-head label{margin-bottom:5px}
+.f input[type=text],.f input[type=date],.f input[type=number],.f select{width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:9px 10px;background:var(--surface);color:var(--ink)}
+.f input:focus,.f select:focus{outline:2px solid var(--ink);outline-offset:-1px;border-color:var(--ink)}
+.f .static{padding:9px 10px;background:#F2F4F9;border-radius:8px;font-size:13.5px;color:var(--ink-soft)}
+.f .note{font-size:11.5px;color:var(--muted);margin-top:5px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{border:1px solid var(--line-strong);background:var(--surface);border-radius:20px;padding:6px 12px;font-size:12.5px;display:flex;align-items:center;gap:7px}
+.chip i{width:10px;height:10px;border-radius:3px;display:block}
+.chip[aria-pressed=true]{border-color:var(--ink);background:#EEF1F7;font-weight:600}
+.sheet-acts{display:flex;gap:9px;margin-top:20px;align-items:center;flex-wrap:wrap}
+.sheet-acts .grow{margin-left:auto}
+.b2{border:1px solid var(--line-strong);background:var(--surface);border-radius:8px;padding:9px 15px;font-size:13.5px}
+.b2:hover{background:#EEF1F7}
+.b2.dark{background:var(--ink);color:#fff;border-color:var(--ink);font-weight:600}
+.b2.dark:hover{background:#22335A}
+.b2.del{color:var(--danger);border-color:#F0C9C4}
+.b2.del:hover{background:#FCEFED}
+.linklike{background:none;border:0;color:var(--ink-soft);text-decoration:underline;font-size:12px;padding:0}
+.linklike:hover{color:var(--ink)}
+textarea#csv{width:100%;height:180px;border:1px solid var(--line-strong);border-radius:8px;padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:12px}
+
+/* kelola status / squad / kategori */
+.tagrow{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.tagrow input[type=color]{width:32px;height:32px;padding:0;border:1px solid var(--line-strong);border-radius:8px;background:none;flex:0 0 auto}
+.tagrow input[type=text]{flex:1;border:1px solid var(--line-strong);border-radius:8px;padding:8px 10px;min-width:0;background:var(--surface);color:var(--ink)}
+.mg-empty{color:var(--muted);font-size:13px;margin:2px 0 10px}
+.mg-add{width:100%;border:1px dashed var(--line-strong);background:var(--surface);border-radius:8px;padding:9px;font-size:13px;color:var(--ink-soft)}
+.mg-add:hover{background:#EEF1F7;color:var(--ink)}
+
+@media(max-width:640px){
+  :root{--namew:168px;--colmin:64px}
+  .wrap{padding:12px 12px 80px}
+  .top{padding:12px 14px;gap:10px}
+  .legend{padding:9px 14px;gap:10px}
+  .legend .hint{display:none}
+  .filterbar{padding:9px 14px}
+  .name{padding:9px 8px 9px 10px}
+}
+@media print{
+  .top .acts,.range,.legend .hint,.filterbar,.name .tools,.grip{display:none!important}
+  body{background:#fff}
+  .top{background:#fff;color:var(--ink);border-bottom:2px solid var(--ink)}
+  #title{color:var(--ink)}
+  .board{overflow:visible;border-color:var(--line-strong)}
+  .wrap{padding:0}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">
+    <input id="title" value="Roadmap Produk" aria-label="Judul roadmap">
+    <small id="span-label"></small>
+  </div>
+  <div class="range">
+    Tahun
+    <select id="yearsel" aria-label="Tahun roadmap"></select>
+    <button class="btn" id="year-add" type="button">+ Tahun baru</button>
+  </div>
+  <div class="range">
+    Mulai dari
+    <select id="startsel" aria-label="Sprint mulai"></select>
+    sebanyak
+    <input id="cnt" type="number" min="2" max="24" value="6" aria-label="Jumlah sprint">
+    sprint
+    <button class="btn" id="today-btn" type="button">Sprint saat ini</button>
+    <button class="btn" id="anchor-btn" type="button">Atur tanggal awal</button>
+  </div>
+  <div class="acts">
+    <button class="btn primary" id="add-item">Tambah project/fitur</button>
+  </div>
+</header>
+
+<div class="legend" id="legend"></div>
+<div class="filterbar" id="filterbar"></div>
+
+<main class="wrap">
+  <div class="board" id="board"><div class="inner" id="inner"></div></div>
+</main>
+
+<!-- modal fase -->
+<div class="overlay" id="ov-phase">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="ph-title">
+    <h3 id="ph-title">Tambah fase</h3>
+    <div class="f">
+      <label>Tahapan</label>
+      <div class="chips" id="ph-types"></div>
+    </div>
+    <div class="two">
+      <div class="f"><label for="ph-s">Minggu mulai</label><select id="ph-s"></select></div>
+      <div class="f" id="ph-ewrap"><label for="ph-e">Minggu selesai</label><select id="ph-e"></select></div>
+    </div>
+    <div class="sheet-acts">
+      <button class="b2 del" id="ph-del">Hapus fase</button>
+      <button class="b2 grow" id="ph-cancel">Batal</button>
+      <button class="b2 dark" id="ph-save">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal project/fitur -->
+<div class="overlay" id="ov-item">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="it-title">
+    <h3 id="it-title">Tambah project/fitur</h3>
+    <div class="f">
+      <label for="it-name">Nama project/fitur</label>
+      <input type="text" id="it-name" placeholder="Misal: Redesain dashboard laporan">
+    </div>
+    <div class="f">
+      <label for="it-pic">User / Requestor <span style="color:var(--muted);font-weight:400">(opsional)</span></label>
+      <input type="text" id="it-pic" placeholder="Misal: dr. Andi — Poli Anak">
+    </div>
+    <div class="f">
+      <div class="f-head"><label for="it-squad">Squad</label><button type="button" class="linklike" data-act="mg-squad">Kelola squad</button></div>
+      <select id="it-squad"></select>
+    </div>
+    <div class="f">
+      <div class="f-head"><label for="it-cat">Kategori</label><button type="button" class="linklike" data-act="mg-category">Kelola kategori</button></div>
+      <select id="it-cat"></select>
+    </div>
+    <div class="f">
+      <div class="f-head"><label for="it-status">Status</label><button type="button" class="linklike" data-act="mg-status">Kelola status</button></div>
+      <select id="it-status"></select>
+    </div>
+    <div class="sheet-acts">
+      <button class="b2 del" id="it-del">Hapus</button>
+      <button class="b2 grow" id="it-cancel">Batal</button>
+      <button class="b2 dark" id="it-save">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal kelola status/squad/kategori -->
+<div class="overlay top" id="ov-manage">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="mg-title">
+    <h3 id="mg-title">Kelola status</h3>
+    <div id="mg-list"></div>
+    <button type="button" class="mg-add" id="mg-add">+ Tambah</button>
+    <div class="sheet-acts"><button class="b2 dark grow" id="mg-close">Selesai</button></div>
+  </div>
+</div>
+
+<!-- modal atur sprint -->
+<div class="overlay" id="ov-sprint">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sp-title">
+    <h3 id="sp-title">Atur sprint</h3>
+    <p class="sub" id="sp-sub"></p>
+    <div class="f">
+      <label for="sp-num">Nomor sprint</label>
+      <input type="number" id="sp-num" min="-999" max="9999">
+      <p class="note">Mengubah nomor akan menyesuaikan penomoran sprint sebelum dan sesudahnya secara otomatis.</p>
+    </div>
+    <div class="f" id="sp-startwrap">
+      <label for="sp-start">Tanggal mulai</label>
+      <input type="date" id="sp-start">
+    </div>
+    <div class="f">
+      <label for="sp-end">Tanggal selesai</label>
+      <input type="date" id="sp-end">
+      <p class="note" id="sp-durinfo"></p>
+    </div>
+    <div class="sheet-acts">
+      <button class="b2 del" id="sp-reset">Reset ke 10 hari kerja</button>
+      <button class="b2 grow" id="sp-cancel">Batal</button>
+      <button class="b2 dark" id="sp-save">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal atur tanggal awal -->
+<div class="overlay" id="ov-anchor">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="an-title">
+    <h3 id="an-title">Atur tanggal awal roadmap</h3>
+    <p class="sub">Tanggal ini menjadi awal sprint pertama (posisi 0). Semua sprint lain menyesuaikan mengikuti tanggal ini.</p>
+    <div class="f">
+      <label for="an-date">Tanggal mulai sprint pertama</label>
+      <input type="date" id="an-date">
+      <p class="note">Otomatis disesuaikan ke hari kerja terdekat jika jatuh di akhir pekan.</p>
+    </div>
+    <div class="sheet-acts">
+      <button class="b2 grow" id="an-cancel">Batal</button>
+      <button class="b2 dark" id="an-save">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- modal tahun baru -->
+<div class="overlay" id="ov-year">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="yr-title">
+    <h3 id="yr-title">Roadmap tahun baru</h3>
+    <p class="sub">Masukkan tahun yang sudah ada untuk berpindah ke sana, atau tahun baru untuk membuat roadmap kosong.</p>
+    <div class="f">
+      <label for="yr-num">Tahun</label>
+      <input type="number" id="yr-num" min="2000" max="2100">
+    </div>
+    <div class="sheet-acts">
+      <button class="b2 grow" id="yr-cancel">Batal</button>
+      <button class="b2 dark" id="yr-save">Buka / Buat</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+<script>
+"use strict";
+
+/* ================================================================
+   ISI KONFIGURASI FIREBASE DI SINI
+   Salin blok firebaseConfig dari Firebase Console (Project settings
+   > Your apps > ikon web </>) lalu tempel menggantikan blok di bawah.
+   ================================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCFv7oTPXTsTZVfYR344kiqf0WXnqT0bZo",
+  authDomain: "roadmap-planner-b1cce.firebaseapp.com",
+  projectId: "roadmap-planner-b1cce",
+  storageBucket: "roadmap-planner-b1cce.firebasestorage.app",
+  messagingSenderId: "1061464882716",
+  appId: "1:1061464882716:web:ac62b419137d815b1fa9d9"
+};
+const FIREBASE_READY = firebaseConfig.apiKey !== "ISI_DARI_FIREBASE_CONSOLE";
+let db = null;
+if(FIREBASE_READY){
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+}
+/* ================================================================
+   Rule Firestore yang perlu ditempel di tab "Rules" project Anda:
+
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /roadmap_kv/{docId} {
+         allow read, write: if true;
+       }
+     }
+   }
+
+   Catatan: rule ini terbuka bagi siapa pun yang tahu project id-nya
+   (tidak ada login). Cukup aman untuk alat internal pribadi, tapi
+   kalau nanti mau lebih aman, bisa ditambah Firebase Authentication.
+   ================================================================ */
+
+/* ================= waktu: hari kerja & sprint fleksibel ================= */
+const DAY = 86400000;
+const DEFAULT_DUR = 10;   // hari kerja per sprint (default)
+const K = 1000;           // skala flat = sprintPos*K + weekIndex
+const MONTHS_ID = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const MONTHS_SHORT = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+
+function todayUTC(){ const t=new Date(); return Date.UTC(t.getFullYear(), t.getMonth(), t.getDate()); }
+function isWeekend(ms){ const d=new Date(ms).getUTCDay(); return d===0||d===6; }
+function snapToWeekday(ms){ let d=ms; while(isWeekend(d)) d+=DAY; return d; }
+function addWeekdays(ms,n){ let d=ms, c=0; while(c<n){ d+=DAY; if(!isWeekend(d)) c++; } return d; }
+function subWeekdays(ms,n){ let d=ms, c=0; while(c<n){ d-=DAY; if(!isWeekend(d)) c++; } return d; }
+function countWeekdays(startMs,endMs){ let d=startMs,c=0; while(d<=endMs){ if(!isWeekend(d)) c++; d+=DAY; } return c; }
+function fmtD(ms){ const d=new Date(ms); return d.getUTCDate()+" "+MONTHS_SHORT[d.getUTCMonth()]; }
+function dateInputValue(ms){ const d=new Date(ms); return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0"); }
+function parseDateInput(str){ const [y,m,d]=str.split("-").map(Number); return Date.UTC(y,m-1,d); }
+function isoWeek(ms){
+  const d0=new Date(ms); const dt=new Date(Date.UTC(d0.getUTCFullYear(),d0.getUTCMonth(),d0.getUTCDate()));
+  const dayNum=(dt.getUTCDay()+6)%7; dt.setUTCDate(dt.getUTCDate()-dayNum+3);
+  const firstThu=new Date(Date.UTC(dt.getUTCFullYear(),0,4));
+  const fdn=(firstThu.getUTCDay()+6)%7; firstThu.setUTCDate(firstThu.getUTCDate()-fdn+3);
+  return 1+Math.round((dt-firstThu)/(7*DAY));
+}
+
+function durationOf(pos){ const v=state.sprintDur[pos]; return (v!=null) ? v : DEFAULT_DUR; }
+function weeksInSprint(pos){ return Math.ceil(durationOf(pos)/5); }
+function sprintNumber(pos){ return state.numberAnchor.number + (pos - state.numberAnchor.pos); }
+
+function sprintStartMap(minPos,maxPos){
+  const lo=Math.min(0,minPos), hi=Math.max(0,maxPos);
+  const map=new Map(); map.set(0, state.anchorDate);
+  for(let p=1;p<=hi;p++) map.set(p, addWeekdays(map.get(p-1), durationOf(p-1)));
+  for(let p=-1;p>=lo;p--) map.set(p, subWeekdays(map.get(p+1), durationOf(p)));
+  return map;
+}
+function sprintRange(pos){
+  const m=sprintStartMap(pos,pos);
+  const s=m.get(pos), e=addWeekdays(s, durationOf(pos)-1);
+  return {start:s,end:e};
+}
+
+function decodeFlat(flat){ const sS=Math.floor(flat/K); const sW=flat-sS*K; return {sS,sW}; }
+function encodeFlat(sS,sW){ return sS*K+sW; }
+
+/* buildWeekTable: pecah sprint [sFrom..sTo] jadi kolom minggu (maks 5 hari kerja/kolom) */
+function buildWeekTable(sFrom,sTo){
+  if(sTo<sFrom) return [];
+  const starts=sprintStartMap(sFrom,sTo);
+  const cols=[];
+  for(let pos=sFrom; pos<=sTo; pos++){
+    const dur=durationOf(pos); const nW=Math.ceil(dur/5);
+    let cursor=starts.get(pos), remaining=dur;
+    for(let wi=0; wi<nW; wi++){
+      const take=Math.min(5,remaining);
+      const wStart=cursor, wEnd=addWeekdays(wStart,take-1);
+      cols.push({flat:encodeFlat(pos,wi), sprintPos:pos, wi, wStart, wEnd, isoNo:isoWeek(wStart), first:wi===0, last:wi===nW-1});
+      cursor=addWeekdays(wStart,take); remaining-=take;
+    }
+  }
+  return cols;
+}
+function chunkOf(flat){
+  const {sS,sW}=decodeFlat(flat);
+  const t=buildWeekTable(sS,sS);
+  return t[sW] || t[t.length-1];
+}
+function findSprintPosForDate(ms){
+  for(let r=0;r<200;r++){
+    const cands = r===0 ? [0] : [r,-r];
+    for(const p of cands){
+      const {start,end}=sprintRange(p);
+      if(ms>=start && ms<=end) return p;
+    }
+  }
+  return 0;
+}
+const NOW_MS = todayUTC();
+
+/* ================= data acuan ================= */
+const PHASES = {
+  assessment:  {label:"Assessment",  color:"var(--c-assessment)"},
+  development: {label:"Development", color:"var(--c-development)"},
+  testing:     {label:"Testing",     color:"var(--c-testing)"},
+  uat:         {label:"UAT",         color:"var(--c-uat)"},
+  sosialisasi: {label:"Sosialisasi", color:"var(--c-sosialisasi)"},
+  golive:      {label:"Go-live",     color:"var(--c-golive)", milestone:true}
+};
+const ORDER = Object.keys(PHASES);
+const uid = ()=> Math.random().toString(36).slice(2,9);
+
+function defaultStatuses(){ return [
+  {id:"todo",label:"Todo",color:"#8892A6"},
+  {id:"inprogress",label:"Inprogress",color:"#2F5FE0"},
+  {id:"hold",label:"Hold",color:"#D9A02F"},
+  {id:"cancel",label:"Cancel",color:"#C0392B"},
+  {id:"golive",label:"Golive",color:"#16A34A"}
+]; }
+function defaultSquads(){ return [
+  {id:"pf",label:"Patient Facing",color:"#2563EB"},
+  {id:"ai",label:"AI",color:"#7C4FD6"},
+  {id:"ops",label:"Operations",color:"#C2703D"}
+]; }
+function defaultCategories(){ return [
+  {id:"cr",label:"CR",color:"#6B7A99"},
+  {id:"initiative",label:"Initiative",color:"#2F6FE0"},
+  {id:"issue",label:"Issue Production",color:"#C0392B"}
+]; }
+
+/* roadmap kosong untuk tahun tertentu (dipakai saat "+ Tahun baru") */
+function blankRoadmap(year){
+  return {
+    title:"Roadmap Produk "+year,
+    anchorDate: snapToWeekday(Date.UTC(year,0,1)),
+    sprintDur:{}, numberAnchor:{pos:0, number:1},
+    start:0, count:6,
+    statuses:defaultStatuses(), squads:defaultSquads(), categories:defaultCategories(),
+    items:[]
+  };
+}
+
+function sample(){
+  const s0 = 0; // sprint pertama baru (belum ada override), jadi posisi 0 sudah pasti valid
+  const t = (pos,wi)=>encodeFlat(pos,wi);
+  return {
+    title:"Roadmap Produk",
+    anchorDate: snapToWeekday(NOW_MS),
+    sprintDur:{}, numberAnchor:{pos:0, number:1},
+    start:s0, count:6,
+    statuses:defaultStatuses(), squads:defaultSquads(), categories:defaultCategories(),
+    items:[
+      {id:uid(), name:"Redesain SimQ Report", pic:"Tim Produk", squad:"ai", status:"inprogress", category:"initiative", phases:[
+        {id:uid(),type:"assessment",s:t(s0,0),e:t(s0,0)},
+        {id:uid(),type:"development",s:t(s0,1),e:t(s0+1,1)},
+        {id:uid(),type:"testing",s:t(s0+2,0),e:t(s0+2,0)},
+        {id:uid(),type:"uat",s:t(s0+2,1),e:t(s0+2,1)},
+        {id:uid(),type:"sosialisasi",s:t(s0+3,0),e:t(s0+3,0)},
+        {id:uid(),type:"golive",s:t(s0+3,1),e:t(s0+3,1)}
+      ]},
+      {id:uid(), name:"Modul antrean pasien", pic:"Tim Operasional", squad:"ops", status:"todo", category:"initiative", phases:[
+        {id:uid(),type:"assessment",s:t(s0+1,0),e:t(s0+1,0)},
+        {id:uid(),type:"development",s:t(s0+1,1),e:t(s0+2,1)},
+        {id:uid(),type:"testing",s:t(s0+3,0),e:t(s0+3,0)},
+        {id:uid(),type:"golive",s:t(s0+3,1),e:t(s0+3,1)}
+      ]},
+      {id:uid(), name:"Integrasi pembayaran", pic:"", squad:"pf", status:"hold", category:"cr", phases:[
+        {id:uid(),type:"assessment",s:t(s0+2,0),e:t(s0+2,0)},
+        {id:uid(),type:"development",s:t(s0+2,1),e:t(s0+3,1)}
+      ]}
+    ]
+  };
+}
+
+let state = sample();
+let filters = { status:new Set(), squad:new Set(), category:new Set(), pic:new Set() };
+let currentYear = null;
+let yearIndex = [];
+
+/* ---------- penyimpanan per tahun (Firestore) ---------- */
+const IDX_KEY = "roadmap:index";
+const ACTIVE_KEY = "roadmap:activeYear";
+const yearKey = y => "roadmap:year:"+y;
+
+async function kvGet(key){
+  if(!FIREBASE_READY) return null;
+  try{
+    const doc = await db.collection("roadmap_kv").doc(key).get();
+    return doc.exists ? doc.data().value : null;
+  }catch(err){ console.warn("Gagal membaca dari Firestore:", key, err); return null; }
+}
+async function kvSet(key, value){
+  if(!FIREBASE_READY) return;
+  try{ await db.collection("roadmap_kv").doc(key).set({value}); }
+  catch(err){ console.warn("Gagal menyimpan ke Firestore:", key, err); }
+}
+
+function normalizeState(d){
+  d.statuses=d.statuses||[]; d.squads=d.squads||[]; d.categories=d.categories||[];
+  d.sprintDur=d.sprintDur||{}; d.numberAnchor=d.numberAnchor||{pos:0,number:1};
+  d.items = Array.isArray(d.items) ? d.items : [];
+  return d;
+}
+let saveTimer=null;
+function save(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(()=>{ kvSet(yearKey(currentYear), JSON.stringify(state)); },350);
+}
+async function saveCurrentNow(){
+  clearTimeout(saveTimer);
+  await kvSet(yearKey(currentYear), JSON.stringify(state));
+}
+async function persistIndex(){ await kvSet(IDX_KEY, JSON.stringify(yearIndex)); }
+async function persistActive(y){ await kvSet(ACTIVE_KEY, JSON.stringify(y)); }
+async function loadYear(y){
+  const v = await kvGet(yearKey(y));
+  if(v){ try{ state = normalizeState(JSON.parse(v)); return; }catch(err){} }
+  state = blankRoadmap(y);
+}
+async function loadAll(){
+  const idxVal = await kvGet(IDX_KEY);
+  if(idxVal){ try{ const v=JSON.parse(idxVal); if(Array.isArray(v)) yearIndex=v; }catch(err){} }
+
+  if(yearIndex.length){
+    let active=null;
+    const a = await kvGet(ACTIVE_KEY);
+    if(a){ try{ active=JSON.parse(a); }catch(err){} }
+    currentYear = yearIndex.includes(active) ? active : yearIndex[yearIndex.length-1];
+    await loadYear(currentYear);
+    return;
+  }
+  currentYear = new Date().getUTCFullYear();
+  state = sample();
+  yearIndex = [currentYear];
+  await persistIndex(); await saveCurrentNow(); await persistActive(currentYear);
+}
+function buildYearSelect(){
+  const sel = document.getElementById("yearsel");
+  sel.innerHTML = yearIndex.map(y=>`<option value="${y}" ${y===currentYear?"selected":""}>${y}</option>`).join("");
+}
+
+/* ---------- util ---------- */
+function esc(s){ return String(s||"").replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+const findTag = (kind,id) => id ? state[kind].find(t=>t.id===id) : null;
+function badge(kind,id){ const t=findTag(kind,id); if(!t) return ""; return `<span class="badge" style="--bc:${t.color}"><i></i>${esc(t.label)}</span>`; }
+const findItem = id => state.items.find(i=>i.id===id);
+const findPhase = (iid,pid)=>{ const it=findItem(iid); return it && it.phases.find(p=>p.id===pid); };
+
+/* ---------- legenda ---------- */
+function renderLegend(){
+  const el=document.getElementById("legend");
+  el.innerHTML = ORDER.map(k=>{ const p=PHASES[k];
+    return `<span class="lg"><span class="sw ${p.milestone?'dia':''}" style="background:${p.color}"></span>${p.label}</span>`;
+  }).join("") + `<span class="hint">Geser bar untuk menggeser minggu · tarik ujungnya untuk ubah durasi · klik judul sprint untuk rename/atur panjang · klik ✎ untuk atur status, squad &amp; kategori</span>`;
+}
+
+/* ---------- filter bar ---------- */
+function distinctPics(){
+  const set = new Set();
+  state.items.forEach(it=>{ set.add(it.pic ? it.pic.trim() : ""); });
+  return [...set].sort((a,b)=> a===""?1:b===""?-1:a.localeCompare(b));
+}
+const FILTER_STATE_KEY = {status:"statuses", squad:"squads", category:"categories"};
+function filterGroup(kind, label){
+  let opts, getKey, getColor, getLabel;
+  if(kind==="pic"){
+    opts = distinctPics();
+    getKey = v=>v; getColor=()=>"#8892A6"; getLabel=v=> v===""?"(Tanpa requestor)":v;
+  } else {
+    opts = state[FILTER_STATE_KEY[kind]];
+    getKey = t=>t.id; getColor=t=>t.color; getLabel=t=>t.label;
+  }
+  const activeSet = filters[kind];
+  const active = activeSet.size>0;
+  const body = opts.length ? opts.map(o=>{
+    const key=getKey(o), lbl=getLabel(o), col=getColor(o);
+    const checked = activeSet.has(key) ? "checked" : "";
+    return `<label class="fopt"><input type="checkbox" data-fkind="${kind}" data-fkey="${esc(key)}" ${checked}><i style="background:${col}"></i>${esc(lbl)}</label>`;
+  }).join("") : `<p class="mg-empty">Belum ada data.</p>`;
+  return `<details class="filt ${active?'active':''}"><summary>${label}${active?` (${activeSet.size})`:""}</summary><div class="fpanel">${body}</div></details>`;
+}
+function renderFilters(){
+  const el = document.getElementById("filterbar");
+  const anyActive = Object.values(filters).some(s=>s.size>0);
+  el.innerHTML = `<span class="flabel">Filter:</span>` +
+    filterGroup("status","Status") + filterGroup("squad","Squad") +
+    filterGroup("category","Kategori") + filterGroup("pic","Requestor") +
+    (anyActive ? `<button type="button" class="fclear" id="fclear">Bersihkan filter</button>` : "");
+}
+document.getElementById("filterbar").addEventListener("change", e=>{
+  const cb = e.target.closest('input[type=checkbox][data-fkind]'); if(!cb) return;
+  const kind=cb.dataset.fkind, key=cb.dataset.fkey;
+  if(cb.checked) filters[kind].add(key); else filters[kind].delete(key);
+  renderFilters(); render();
+});
+document.getElementById("filterbar").addEventListener("click", e=>{
+  if(e.target.id==="fclear"){
+    Object.values(filters).forEach(s=>s.clear());
+    document.querySelectorAll(".filt").forEach(d=>d.removeAttribute("open"));
+    renderFilters(); render();
+  }
+});
+function passesFilters(it){
+  return (filters.status.size===0 || filters.status.has(it.status||"")) &&
+         (filters.squad.size===0 || filters.squad.has(it.squad||"")) &&
+         (filters.category.size===0 || filters.category.has(it.category||"")) &&
+         (filters.pic.size===0 || filters.pic.has((it.pic||"").trim()));
+}
+
+/* ---------- sort: assessment terdekat dulu ---------- */
+function sortKey(it){
+  const asm = it.phases.filter(p=>p.type==="assessment").map(p=>p.s);
+  if(asm.length) return Math.min(...asm);
+  if(it.phases.length) return Math.min(...it.phases.map(p=>p.s));
+  return Infinity;
+}
+
+/* ---------- lane ---------- */
+function lanes(phases){
+  const sorted=[...phases].sort((a,b)=>a.s-b.s || a.e-b.e);
+  const rows=[];
+  sorted.forEach(p=>{
+    let i=rows.findIndex(r=>r.every(o=>p.s>o.e || p.e<o.s));
+    if(i===-1){ rows.push([p]); i=rows.length-1; } else rows[i].push(p);
+    p._lane=i;
+  });
+  return Math.max(rows.length,1);
+}
+
+/* ---------- render papan ---------- */
+function groupConsecutive(arr, keyFn){
+  const groups=[];
+  arr.forEach((item,i)=>{
+    const k=keyFn(item);
+    if(!groups.length || groups[groups.length-1].k!==k) groups.push({k, span:1});
+    else groups[groups.length-1].span++;
+  });
+  return groups;
+}
+
+function render(){
+  const table = buildWeekTable(state.start, state.start+state.count-1);
+  const n = table.length;
+  if(n===0){ return; }
+  document.documentElement.style.setProperty("--n", n);
+  const colIndexOf = new Map(); table.forEach((c,i)=>colIndexOf.set(c.flat,i));
+  const first = table[0].flat, last = table[table.length-1].flat;
+
+  const inner = document.getElementById("inner");
+  document.getElementById("title").value = state.title;
+  document.getElementById("cnt").value = state.count;
+  buildStartSelect();
+
+  const visible = state.items.filter(passesFilters).sort((a,b)=>sortKey(a)-sortKey(b));
+  const totalCount = state.items.length;
+  document.getElementById("span-label").textContent =
+    fmtD(table[0].wStart)+" – "+fmtD(table[n-1].wEnd)+" · "+state.count+" sprint · "+n+" minggu · "+
+    (visible.length===totalCount ? totalCount+" project/fitur" : visible.length+" dari "+totalCount+" project/fitur");
+
+  // baris tahun
+  const yearGroups = groupConsecutive(table, c=> new Date(c.wStart).getUTCFullYear());
+  let col=2;
+  const yearRow = `<div class="row head-year"><div class="corner">Project/Fitur</div>` +
+    yearGroups.map(g=>{ const c=col; col+=g.span; return `<div class="hc" style="grid-column:${c} / span ${g.span}">${g.k}</div>`; }).join("") + `</div>`;
+
+  // baris kuartal
+  const quarterGroups = groupConsecutive(table, c=> Math.floor(new Date(c.wStart).getUTCMonth()/3)+1);
+  col=2;
+  const quarterRow = `<div class="row head-quarter"><div class="corner"></div>` +
+    quarterGroups.map(g=>{ const c=col; col+=g.span; return `<div class="hc" style="grid-column:${c} / span ${g.span}">Kuartal ${g.k}</div>`; }).join("") + `</div>`;
+
+  // baris sprint
+  const sprintGroups = groupConsecutive(table, c=>c.sprintPos);
+  col=2;
+  const sprintRow = `<div class="row head-sprint"><div class="corner">${state.count} sprint</div>` +
+    sprintGroups.map(g=>{ const c=col; col+=g.span;
+      return `<div class="hc" style="grid-column:${c} / span ${g.span}" data-act="open-sprint" data-pos="${g.k}">Sprint ${sprintNumber(g.k)}</div>`;
+    }).join("") + `</div>`;
+
+  // baris minggu
+  let weekRow = `<div class="row head-week"><div class="corner">${n} minggu</div>`;
+  table.forEach((c,i)=>{
+    const now = NOW_MS>=c.wStart && NOW_MS<=c.wEnd;
+    weekRow += `<div class="hc ${now?'now':''}" style="grid-column:${i+2}"><b>W${c.isoNo}</b><small>${fmtD(c.wStart)} - ${fmtD(c.wEnd)}${now?' · kini':''}</small></div>`;
+  });
+  weekRow += `</div>`;
+
+  let body="";
+  if(!visible.length){
+    body = totalCount===0
+      ? `<div class="empty"><h2>Belum ada project/fitur di roadmap ini</h2><p>Mulai dengan satu project/fitur, lalu susun fasenya per minggu.</p><button class="btn-dark" data-act="add-item">Tambah project/fitur pertama</button></div>`
+      : `<div class="empty"><h2>Tidak ada yang cocok dengan filter</h2><p>Coba ubah atau bersihkan filter yang aktif.</p></div>`;
+  } else {
+    body = visible.map(it=>{
+      const L = lanes(it.phases);
+      const outside = it.phases.filter(p=>p.e<first || p.s>last).length;
+      let cells="";
+      for(let l=0;l<L;l++){
+        table.forEach((c,i)=>{
+          cells += `<button class="cell ${NOW_MS>=c.wStart&&NOW_MS<=c.wEnd?'now':''}" style="grid-column:${i+2};grid-row:${l+1}"
+            data-act="cell" data-item="${it.id}" data-q="${c.flat}" aria-label="Tambah fase pada minggu W${c.isoNo}"></button>`;
+        });
+      }
+      const bars = it.phases.map(p=>{
+        if(p.e<first || p.s>last) return "";
+        const clipL = p.s<first, clipR = p.e>last;
+        const ls = clipL ? 0 : colIndexOf.get(p.s);
+        const le = clipR ? n-1 : colIndexOf.get(p.e);
+        if(ls==null || le==null || le<ls) return "";
+        const meta = PHASES[p.type] || PHASES.assessment;
+        const cls = ["bar", meta.milestone?"ms":"", clipL?"clip-l":"", clipR?"clip-r":""].join(" ");
+        const grips = meta.milestone ? "" : `<span class="grip l" data-grip="l"></span><span class="grip r" data-grip="r"></span>`;
+        const inside = meta.milestone ? `<i></i><span>${meta.label}</span>` : `<span>${meta.label}</span>`;
+        const cs=chunkOf(p.s), ce=chunkOf(p.e);
+        const tip = `${meta.label}: ${fmtD(cs.wStart)} – ${fmtD(ce.wEnd)} (Sprint ${sprintNumber(cs.sprintPos)}${cs.sprintPos!==ce.sprintPos?'–'+sprintNumber(ce.sprintPos):''})`;
+        return `<button class="${cls}" data-act="phase" data-item="${it.id}" data-phase="${p.id}"
+          style="grid-column:${ls+2} / span ${le-ls+1};grid-row:${(p._lane||0)+1};background:${meta.color}" title="${esc(tip)}">${grips}${inside}</button>`;
+      }).join("");
+
+      const badges = badge("statuses",it.status) + badge("squads",it.squad) + badge("categories",it.category);
+
+      return `<div class="row item" data-row="${it.id}" style="grid-auto-rows:minmax(var(--lane),auto)">
+        <div class="name" style="grid-row:1 / span ${L}">
+          <span class="n">${esc(it.name)}</span>
+          ${badges ? `<span class="badges">${badges}</span>` : ""}
+          ${it.pic ? `<span class="pic">${esc(it.pic)}</span>`:""}
+          ${outside ? `<span class="off">${outside} fase di luar rentang</span>`:""}
+          <span class="tools">
+            <button class="tool" data-act="add-phase" data-item="${it.id}" title="Tambah fase">+</button>
+            <button class="tool" data-act="edit-item" data-item="${it.id}" title="Ubah project/fitur">✎</button>
+          </span>
+        </div>
+        ${cells}${bars}
+      </div>`;
+    }).join("");
+  }
+  inner.innerHTML = yearRow + quarterRow + sprintRow + weekRow + body;
+  requestAnimationFrame(stickyOffsets);
+}
+function stickyOffsets(){
+  const yh=document.querySelector(".head-year"), qh=document.querySelector(".head-quarter"), sh=document.querySelector(".head-sprint"), wh=document.querySelector(".head-week");
+  if(!yh||!qh||!sh||!wh) return;
+  const yH=yh.getBoundingClientRect().height; qh.style.top=yH+"px";
+  const qH=qh.getBoundingClientRect().height; sh.style.top=(yH+qH)+"px";
+  const spH=sh.getBoundingClientRect().height; wh.style.top=(yH+qH+spH)+"px";
+}
+
+function buildStartSelect(){
+  const sel = document.getElementById("startsel");
+  const lo = Math.min(-8, state.start-8), hi = Math.max(40, state.start+state.count+20);
+  let html="";
+  for(let p=lo;p<=hi;p++){
+    const r=sprintRange(p);
+    html += `<option value="${p}" ${p===state.start?"selected":""}>Sprint ${sprintNumber(p)} · ${fmtD(r.start)}</option>`;
+  }
+  sel.innerHTML = html;
+}
+
+/* ---------- modal fase ---------- */
+let phCtx=null;
+function openPhase(itemId, phaseId, presetFlat){
+  const it=findItem(itemId); if(!it) return;
+  const p = phaseId ? findPhase(itemId,phaseId) : null;
+  phCtx = {itemId, phaseId, type: p ? p.type : nextType(it)};
+  document.getElementById("ph-title").textContent = p ? "Ubah fase" : "Tambah fase";
+  document.getElementById("ph-del").style.display = p ? "" : "none";
+  const chips=document.getElementById("ph-types");
+  chips.innerHTML = ORDER.map(k=>`<button class="chip" data-type="${k}" aria-pressed="${k===phCtx.type}"><i style="background:${PHASES[k].color}"></i>${PHASES[k].label}</button>`).join("");
+  fillWeekSelect("ph-s"); fillWeekSelect("ph-e");
+  const s = p ? p.s : (presetFlat!=null ? presetFlat : encodeFlat(state.start,0));
+  const e = p ? p.e : s;
+  document.getElementById("ph-s").value=s;
+  document.getElementById("ph-e").value=e;
+  syncMilestone();
+  show("ov-phase");
+}
+function nextType(it){ for(const k of ORDER) if(!it.phases.some(p=>p.type===k)) return k; return "development"; }
+function fillWeekSelect(id){
+  const sel=document.getElementById(id);
+  const from=state.start-4, to=state.start+state.count+10;
+  const t=buildWeekTable(from,to);
+  sel.innerHTML = t.map(c=>`<option value="${c.flat}">Sprint ${sprintNumber(c.sprintPos)} · W${c.isoNo} · ${fmtD(c.wStart)}-${fmtD(c.wEnd)}</option>`).join("");
+}
+function syncMilestone(){ document.getElementById("ph-ewrap").style.visibility = PHASES[phCtx.type].milestone ? "hidden" : "visible"; }
+
+/* ---------- modal project/fitur ---------- */
+let itCtx=null;
+function fillTagSelect(id,kind,current){
+  const el=document.getElementById(id);
+  el.innerHTML = `<option value="">–</option>` + state[kind].map(t=>`<option value="${t.id}" ${t.id===current?"selected":""}>${esc(t.label)}</option>`).join("");
+}
+function openItem(id){
+  itCtx = id || null;
+  const it = id ? findItem(id) : null;
+  document.getElementById("it-title").textContent = it ? "Ubah project/fitur" : "Tambah project/fitur";
+  document.getElementById("it-name").value = it ? it.name : "";
+  document.getElementById("it-pic").value  = it ? (it.pic||"") : "";
+  fillTagSelect("it-squad","squads", it?it.squad:"");
+  fillTagSelect("it-cat","categories", it?it.category:"");
+  fillTagSelect("it-status","statuses", it?it.status:(state.statuses[0]?state.statuses[0].id:""));
+  document.getElementById("it-del").style.display = it ? "" : "none";
+  show("ov-item");
+  setTimeout(()=>document.getElementById("it-name").focus(),60);
+}
+
+function show(id){ document.getElementById(id).classList.add("on"); }
+function hide(id){ document.getElementById(id).classList.remove("on"); }
+function commit(){ render(); save(); }
+
+/* ---------- kelola status / squad / kategori ---------- */
+let mgCtx=null;
+const MG_TITLES = {statuses:"Kelola status", squads:"Kelola squad", categories:"Kelola kategori"};
+const MG_FIELD  = {statuses:"status", squads:"squad", categories:"category"};
+function openManage(kind){
+  mgCtx=kind;
+  document.getElementById("mg-title").textContent = MG_TITLES[kind];
+  renderManageList();
+  show("ov-manage");
+}
+function renderManageList(){
+  const list=state[mgCtx];
+  const el=document.getElementById("mg-list");
+  el.innerHTML = list.length ? list.map((t,i)=>`
+    <div class="tagrow" data-i="${i}">
+      <input type="color" value="${t.color}" data-f="color" aria-label="Warna">
+      <input type="text" value="${esc(t.label)}" data-f="label" placeholder="Nama" aria-label="Nama">
+      <button type="button" class="tool" data-tagact="del" data-i="${i}" title="Hapus">×</button>
+    </div>`).join("") : `<p class="mg-empty">Belum ada item. Tambahkan salah satu di bawah.</p>`;
+}
+document.getElementById("mg-list").addEventListener("input", e=>{
+  const row=e.target.closest(".tagrow"); if(!row) return;
+  const i=+row.dataset.i, f=e.target.dataset.f;
+  state[mgCtx][i][f]=e.target.value;
+  save(); render();
+});
+document.getElementById("mg-list").addEventListener("click", e=>{
+  const b=e.target.closest('[data-tagact="del"]'); if(!b) return;
+  const i=+b.dataset.i, removedId=state[mgCtx][i].id, field=MG_FIELD[mgCtx];
+  state.items.forEach(it=>{ if(it[field]===removedId) it[field]=""; });
+  state[mgCtx].splice(i,1);
+  renderManageList(); renderFilters(); commit();
+});
+document.getElementById("mg-add").addEventListener("click", ()=>{
+  state[mgCtx].push({id:uid(), label:"Baru", color:"#8892A6"});
+  renderManageList(); save(); render();
+});
+document.getElementById("mg-close").addEventListener("click", ()=>{
+  hide("ov-manage");
+  if(document.getElementById("ov-item").classList.contains("on")){
+    const sq=document.getElementById("it-squad").value, ca=document.getElementById("it-cat").value, st=document.getElementById("it-status").value;
+    fillTagSelect("it-squad","squads", findTag("squads",sq)?sq:"");
+    fillTagSelect("it-cat","categories", findTag("categories",ca)?ca:"");
+    fillTagSelect("it-status","statuses", findTag("statuses",st)?st:"");
+  }
+  renderFilters(); render();
+});
+
+/* ---------- modal atur sprint ---------- */
+let spCtx=null;
+function openSprintModal(pos){
+  spCtx = pos;
+  const r = sprintRange(pos);
+  document.getElementById("sp-title").textContent = "Atur Sprint "+sprintNumber(pos);
+  document.getElementById("sp-sub").textContent = fmtD(r.start)+" – "+fmtD(r.end)+" ("+durationOf(pos)+" hari kerja)";
+  document.getElementById("sp-num").value = sprintNumber(pos);
+  const startWrap = document.getElementById("sp-startwrap");
+  if(pos===0){
+    startWrap.style.display="";
+    document.getElementById("sp-start").value = dateInputValue(r.start);
+  } else {
+    startWrap.style.display="none";
+  }
+  document.getElementById("sp-end").value = dateInputValue(r.end);
+  document.getElementById("sp-end").min = dateInputValue(r.start);
+  updateDurInfo();
+  show("ov-sprint");
+}
+function updateDurInfo(){
+  const pos=spCtx;
+  const startVal = pos===0 ? parseDateInput(document.getElementById("sp-start").value) : sprintRange(pos).start;
+  const endVal = parseDateInput(document.getElementById("sp-end").value);
+  const dur = Math.max(1, countWeekdays(startVal, Math.max(startVal,endVal)));
+  document.getElementById("sp-durinfo").textContent = dur+" hari kerja (~"+Math.ceil(dur/5)+" minggu)";
+}
+document.getElementById("sp-end").addEventListener("change", updateDurInfo);
+document.getElementById("sp-start")?.addEventListener("change", updateDurInfo);
+document.getElementById("sp-save").addEventListener("click", ()=>{
+  const pos=spCtx;
+  const newNum = +document.getElementById("sp-num").value;
+  if(newNum !== sprintNumber(pos)) state.numberAnchor = {pos, number:newNum};
+  if(pos===0){
+    const sv = document.getElementById("sp-start").value;
+    if(sv) state.anchorDate = snapToWeekday(parseDateInput(sv));
+  }
+  const startNow = sprintRange(pos).start;
+  const ev = document.getElementById("sp-end").value;
+  if(ev){
+    const endMs = parseDateInput(ev);
+    const dur = Math.min(90, Math.max(1, countWeekdays(startNow, Math.max(startNow,endMs))));
+    state.sprintDur[pos] = dur;
+  }
+  hide("ov-sprint"); commit();
+});
+document.getElementById("sp-reset").addEventListener("click", ()=>{
+  delete state.sprintDur[spCtx];
+  hide("ov-sprint"); commit();
+});
+document.getElementById("sp-cancel").addEventListener("click", ()=>hide("ov-sprint"));
+
+/* ---------- modal atur tanggal awal ---------- */
+document.getElementById("anchor-btn").addEventListener("click", ()=>{
+  document.getElementById("an-date").value = dateInputValue(state.anchorDate);
+  show("ov-anchor");
+});
+document.getElementById("an-save").addEventListener("click", ()=>{
+  const v=document.getElementById("an-date").value;
+  if(v) state.anchorDate = snapToWeekday(parseDateInput(v));
+  hide("ov-anchor"); commit();
+});
+document.getElementById("an-cancel").addEventListener("click", ()=>hide("ov-anchor"));
+
+/* ---------- interaksi papan ---------- */
+document.addEventListener("click", e=>{
+  const t=e.target.closest("[data-act]"); if(!t) return;
+  const act=t.dataset.act;
+  if(act==="add-item") openItem(null);
+  if(act==="edit-item") openItem(t.dataset.item);
+  if(act==="add-phase") openPhase(t.dataset.item, null, encodeFlat(state.start,0));
+  if(act==="cell") openPhase(t.dataset.item, null, +t.dataset.q);
+  if(act==="phase" && !justDragged) openPhase(t.dataset.item, t.dataset.phase);
+  if(act==="mg-squad") openManage("squads");
+  if(act==="mg-status") openManage("statuses");
+  if(act==="mg-category") openManage("categories");
+  if(act==="open-sprint") openSprintModal(+t.dataset.pos);
+});
+
+/* ---------- drag & resize (mouse), beroperasi di indeks kolom yang tampil ---------- */
+let drag=null, justDragged=false;
+document.addEventListener("pointerdown", e=>{
+  if(e.pointerType!=="mouse" || e.button!==0) return;
+  const bar=e.target.closest(".bar"); if(!bar) return;
+  const row=bar.closest(".row"); const cell=row.querySelector(".cell"); if(!cell) return;
+  const p=findPhase(bar.dataset.item, bar.dataset.phase); if(!p) return;
+  const table = buildWeekTable(state.start, state.start+state.count-1);
+  const colIndexOf = new Map(); table.forEach((c,i)=>colIndexOf.set(c.flat,i));
+  const colS=colIndexOf.get(p.s), colE=colIndexOf.get(p.e);
+  if(colS==null || colE==null) return; // hanya bisa digeser jika sepenuhnya terlihat
+  const grip=e.target.dataset.grip;
+  drag = { bar, p, table, mode: grip?("resize-"+grip):"move", colW: cell.getBoundingClientRect().width, x0:e.clientX, cs0:colS, ce0:colE, n:table.length, moved:false };
+  bar.setPointerCapture(e.pointerId); bar.classList.add("dragging"); e.preventDefault();
+});
+document.addEventListener("pointermove", e=>{
+  if(!drag) return;
+  const d = Math.round((e.clientX-drag.x0)/drag.colW);
+  if(d!==0) drag.moved=true;
+  let cs=drag.cs0, ce=drag.ce0;
+  if(drag.mode==="move"){ cs=drag.cs0+d; ce=drag.ce0+d;
+    if(cs<0){ ce-=cs; cs=0; } if(ce>drag.n-1){ cs-=(ce-(drag.n-1)); ce=drag.n-1; }
+  } else if(drag.mode==="resize-l"){ cs=Math.min(Math.max(0,drag.cs0+d), drag.ce0); }
+  else { ce=Math.max(Math.min(drag.n-1,drag.ce0+d), drag.cs0); }
+  drag.preview={cs,ce};
+  drag.bar.style.gridColumn = `${cs+2} / span ${ce-cs+1}`;
+});
+document.addEventListener("pointerup", ()=>{
+  if(!drag) return;
+  const d=drag; drag=null; d.bar.classList.remove("dragging");
+  if(d.moved && d.preview){
+    d.p.s = d.table[d.preview.cs].flat; d.p.e = d.table[d.preview.ce].flat;
+    justDragged=true; commit(); setTimeout(()=>justDragged=false,50);
+  }
+});
+
+/* ---------- form fase ---------- */
+document.getElementById("ph-types").addEventListener("click", e=>{
+  const c=e.target.closest(".chip"); if(!c) return;
+  phCtx.type=c.dataset.type;
+  [...e.currentTarget.children].forEach(x=>x.setAttribute("aria-pressed", x===c));
+  syncMilestone();
+});
+document.getElementById("ph-s").addEventListener("change", e=>{
+  const es=document.getElementById("ph-e");
+  if(+es.value < +e.target.value) es.value=e.target.value;
+});
+document.getElementById("ph-save").addEventListener("click", ()=>{
+  const it=findItem(phCtx.itemId); if(!it) return hide("ov-phase");
+  const s=+document.getElementById("ph-s").value;
+  const ms=PHASES[phCtx.type].milestone;
+  const en = ms ? s : Math.max(s, +document.getElementById("ph-e").value);
+  if(phCtx.phaseId){ Object.assign(findPhase(phCtx.itemId,phCtx.phaseId), {type:phCtx.type,s,e:en}); }
+  else { it.phases.push({id:uid(), type:phCtx.type, s, e:en}); }
+  hide("ov-phase"); commit();
+});
+document.getElementById("ph-del").addEventListener("click", ()=>{
+  const it=findItem(phCtx.itemId);
+  if(it) it.phases = it.phases.filter(p=>p.id!==phCtx.phaseId);
+  hide("ov-phase"); commit();
+});
+document.getElementById("ph-cancel").addEventListener("click", ()=>hide("ov-phase"));
+
+/* ---------- form project/fitur ---------- */
+document.getElementById("it-save").addEventListener("click", ()=>{
+  const name=document.getElementById("it-name").value.trim() || "Project/fitur tanpa nama";
+  const pic=document.getElementById("it-pic").value.trim();
+  const squad=document.getElementById("it-squad").value;
+  const category=document.getElementById("it-cat").value;
+  const status=document.getElementById("it-status").value;
+  if(itCtx){ Object.assign(findItem(itCtx), {name,pic,squad,category,status}); }
+  else { state.items.push({id:uid(), name, pic, squad, category, status, phases:[]}); }
+  hide("ov-item"); renderFilters(); commit();
+});
+document.getElementById("it-del").addEventListener("click", ()=>{
+  state.items = state.items.filter(i=>i.id!==itCtx);
+  hide("ov-item"); renderFilters(); commit();
+});
+document.getElementById("it-cancel").addEventListener("click", ()=>hide("ov-item"));
+
+document.querySelectorAll(".overlay").forEach(o=>{ o.addEventListener("click", e=>{ if(e.target===o) o.classList.remove("on"); }); });
+document.addEventListener("keydown", e=>{ if(e.key==="Escape") document.querySelectorAll(".overlay.on").forEach(o=>o.classList.remove("on")); });
+document.addEventListener("click", e=>{
+  document.querySelectorAll(".filt[open]").forEach(d=>{ if(!d.contains(e.target)) d.removeAttribute("open"); });
+});
+
+/* ---------- kontrol atas ---------- */
+document.getElementById("title").addEventListener("input", e=>{ state.title=e.target.value; save(); });
+document.getElementById("startsel").addEventListener("change", e=>{ state.start=+e.target.value; commit(); });
+document.getElementById("cnt").addEventListener("change", e=>{ state.count=Math.min(24,Math.max(2,+e.target.value||6)); commit(); });
+document.getElementById("today-btn").addEventListener("click", ()=>{ state.start=findSprintPosForDate(NOW_MS); commit(); });
+document.getElementById("add-item").addEventListener("click", ()=>openItem(null));
+document.getElementById("yearsel").addEventListener("change", async e=>{
+  const y = +e.target.value;
+  if(y===currentYear) return;
+  await saveCurrentNow();
+  currentYear = y; await loadYear(y); await persistActive(y);
+  filters = { status:new Set(), squad:new Set(), category:new Set(), pic:new Set() };
+  buildYearSelect(); renderFilters(); render();
+});
+document.getElementById("year-add").addEventListener("click", ()=>{
+  const suggested = (yearIndex.length ? Math.max(...yearIndex, currentYear) : currentYear) + 1;
+  document.getElementById("yr-num").value = suggested;
+  show("ov-year");
+});
+document.getElementById("yr-cancel").addEventListener("click", ()=>hide("ov-year"));
+document.getElementById("yr-save").addEventListener("click", async ()=>{
+  const y = +document.getElementById("yr-num").value;
+  if(!y){ hide("ov-year"); return; }
+  await saveCurrentNow();
+  const exists = yearIndex.includes(y);
+  currentYear = y;
+  if(exists){ await loadYear(y); }
+  else{
+    state = blankRoadmap(y);
+    yearIndex.push(y); yearIndex.sort((a,b)=>a-b);
+    await persistIndex(); await saveCurrentNow();
+  }
+  await persistActive(y);
+  filters = { status:new Set(), squad:new Set(), category:new Set(), pic:new Set() };
+  buildYearSelect(); renderFilters(); render();
+  hide("ov-year");
+});
+window.addEventListener("resize", ()=>requestAnimationFrame(stickyOffsets));
+
+/* ---------- mulai ---------- */
+(async function init(){
+  renderLegend();
+  if(!FIREBASE_READY){
+    document.getElementById("filterbar").insertAdjacentHTML("afterend",
+      `<div style="background:#FFF6E0;color:#8A5A0E;padding:10px 20px;font-size:13px;border-bottom:1px solid var(--line)">
+        ⚠️ Konfigurasi Firebase belum diisi — perubahan tidak akan tersimpan. Lihat komentar "ISI KONFIGURASI FIREBASE DI SINI" di kode.
+      </div>`);
+  }
+  await loadAll();
+  buildYearSelect();
+  renderFilters();
+  render();
+})();
+</script>
+</body>
+</html>
