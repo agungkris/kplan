@@ -27,7 +27,7 @@
   --c-sosialisasi:#0E9C8A;
   --c-golive:#16A34A;
 
-  --namew:250px;
+  --namew:310px;
   --colmin:74px;
   --lane:34px;
 }
@@ -61,7 +61,10 @@ input,select{font:inherit;color:inherit}
 .range select option{color:#14213A}
 .range input[type=number]{width:50px;text-align:center}
 .range input[type=date]{color-scheme:dark}
-.acts{display:flex;gap:8px;flex-wrap:wrap}
+.acts{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.viewtabs{display:flex;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:8px;padding:2px;gap:2px}
+.viewtabs button{border:0;background:transparent;color:#C6CEE0;border-radius:6px;padding:6px 12px;font-size:13px;font-weight:500}
+.viewtabs button.on{background:#fff;color:var(--ink);font-weight:600}
 .btn{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);color:#fff;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:500;white-space:nowrap}
 .btn:hover{background:rgba(255,255,255,.16)}
 .btn.primary{background:#fff;color:var(--ink);border-color:#fff;font-weight:600}
@@ -160,6 +163,17 @@ input,select{font:inherit;color:inherit}
 .empty p{margin:0 0 18px;color:var(--muted);font-size:13.5px}
 .btn-dark{background:var(--ink);color:#fff;border:0;border-radius:8px;padding:9px 16px;font-weight:600;font-size:13.5px}
 
+/* ---------- backlog ---------- */
+.backlog-wrap{padding:16px 20px;display:flex;flex-direction:column;gap:10px;overflow:auto;height:100%}
+.backlog-card{border:1px solid var(--line);border-radius:10px;padding:13px 15px;background:var(--surface);display:flex;flex-direction:column;gap:7px}
+.backlog-card .bn{font-weight:600;font-size:14px}
+.backlog-card .bnotes{font-size:12.5px;color:var(--ink-soft);white-space:pre-wrap}
+.backlog-card .bacts{display:flex;gap:8px;margin-top:2px}
+.note-preview{font-size:11px;color:var(--muted);display:flex;align-items:flex-start;gap:4px;white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}
+
+/* ---------- lock indikator ---------- */
+.lockbar{background:#FDEEEE;color:#A33;padding:9px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+
 /* ---------- modal ---------- */
 .overlay{position:fixed;inset:0;background:rgba(20,33,58,.42);display:none;align-items:flex-end;justify-content:center;z-index:50;padding:0}
 .overlay.on{display:flex}
@@ -233,16 +247,18 @@ textarea#csv{width:100%;height:180px;border:1px solid var(--line-strong);border-
     <select id="yearsel" aria-label="Tahun roadmap"></select>
     <button class="btn" id="year-add" type="button">+ Tahun baru</button>
   </div>
-  <div class="range">
+  <div class="range" id="sprintrange">
     Mulai dari
     <select id="startsel" aria-label="Sprint mulai"></select>
     sebanyak
-    <input id="cnt" type="number" min="2" max="24" value="6" aria-label="Jumlah sprint">
+    <input id="cnt" type="number" min="2" max="300" value="6" aria-label="Jumlah sprint">
     sprint
     <button class="btn" id="today-btn" type="button">Sprint saat ini</button>
     <button class="btn" id="anchor-btn" type="button">Atur tanggal awal</button>
   </div>
   <div class="acts">
+    <div class="viewtabs" id="viewtabs"></div>
+    <button class="btn" id="history-btn" type="button">Riwayat</button>
     <button class="btn primary" id="add-item">Tambah project/fitur</button>
   </div>
 </header>
@@ -253,6 +269,31 @@ textarea#csv{width:100%;height:180px;border:1px solid var(--line-strong);border-
 <main class="wrap">
   <div class="board" id="board"><div class="inner" id="inner"></div></div>
 </main>
+
+<!-- modal riwayat perubahan -->
+<div class="overlay" id="ov-history">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="hist-title">
+    <h3 id="hist-title">Riwayat perubahan</h3>
+    <p class="sub">Dicatat per browser berdasarkan nama yang diisi masing-masing orang — bukan login sungguhan, jadi bisa saja diisi asal oleh siapa pun.</p>
+    <div id="hist-list" style="max-height:340px;overflow:auto"></div>
+    <div class="sheet-acts"><button class="b2 grow" id="hist-close">Tutup</button></div>
+  </div>
+</div>
+
+<!-- modal isi nama (sekali per browser) -->
+<div class="overlay" id="ov-whoami">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="who-title">
+    <h3 id="who-title">Siapa Anda?</h3>
+    <p class="sub">Nama ini dipakai untuk menandai perubahan yang Anda buat (tersimpan di browser ini saja, bukan akun/login). Boleh dikosongkan.</p>
+    <div class="f">
+      <label for="who-name">Nama</label>
+      <input type="text" id="who-name" placeholder="Misal: Agung">
+    </div>
+    <div class="sheet-acts">
+      <button class="b2 grow" id="who-save">Mulai</button>
+    </div>
+  </div>
+</div>
 
 <!-- modal fase -->
 <div class="overlay" id="ov-phase">
@@ -297,6 +338,18 @@ textarea#csv{width:100%;height:180px;border:1px solid var(--line-strong);border-
     <div class="f">
       <div class="f-head"><label for="it-status">Status</label><button type="button" class="linklike" data-act="mg-status">Kelola status</button></div>
       <select id="it-status"></select>
+    </div>
+    <div class="f">
+      <div class="f-head"><label for="it-effort">Effort</label><button type="button" class="linklike" data-act="mg-effort">Kelola effort</button></div>
+      <select id="it-effort"></select>
+    </div>
+    <div class="f">
+      <div class="f-head"><label for="it-impact">Impact</label><button type="button" class="linklike" data-act="mg-impact">Kelola impact</button></div>
+      <select id="it-impact"></select>
+    </div>
+    <div class="f">
+      <label for="it-notes">Catatan <span style="color:var(--muted);font-weight:400">(opsional)</span></label>
+      <textarea id="it-notes" rows="3" placeholder="Konteks, keputusan, atau hal penting lain..." style="width:100%;border:1px solid var(--line-strong);border-radius:8px;padding:9px 10px;background:var(--surface);color:var(--ink);resize:vertical;font-family:inherit"></textarea>
     </div>
     <div class="sheet-acts">
       <button class="b2 del" id="it-del">Hapus</button>
@@ -395,11 +448,16 @@ const firebaseConfig = {
   messagingSenderId: "1061464882716",
   appId: "1:1061464882716:web:ac62b419137d815b1fa9d9"
 };
-const FIREBASE_READY = firebaseConfig.apiKey !== "ISI_DARI_FIREBASE_CONSOLE";
 let db = null;
-if(FIREBASE_READY){
-  firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
+let FIREBASE_READY = false;
+try{
+  if(typeof firebase !== "undefined" && firebaseConfig.apiKey !== "ISI_DARI_FIREBASE_CONSOLE"){
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    FIREBASE_READY = true;
+  }
+}catch(err){
+  console.warn("Firebase tidak tersedia di lingkungan ini (mis. preview Claude) — berjalan tanpa penyimpanan cloud:", err);
 }
 /* ================================================================
    Rule Firestore yang perlu ditempel di tab "Rules" project Anda:
@@ -507,6 +565,10 @@ const PHASES = {
 };
 const ORDER = Object.keys(PHASES);
 const uid = ()=> Math.random().toString(36).slice(2,9);
+const safeLS = {
+  get(k){ try{ return localStorage.getItem(k); }catch(err){ return null; } },
+  set(k,v){ try{ localStorage.setItem(k,v); }catch(err){} }
+};
 
 function defaultStatuses(){ return [
   {id:"todo",label:"Todo",color:"#8892A6"},
@@ -531,6 +593,15 @@ function defaultRequestors(){ return [
   {id:"medis",label:"Medis",color:"#0E9C8A"},
   {id:"marketing",label:"Marketing",color:"#C2703D"}
 ]; }
+function defaultEfforts(){ return [
+  {id:"low",label:"Low",color:"#16A34A"},
+  {id:"medium",label:"Medium",color:"#D9A02F"},
+  {id:"high",label:"High",color:"#C0392B"}
+]; }
+function defaultImpacts(){ return [
+  {id:"efisiensi",label:"Efisiensi",color:"#0E9C8A"},
+  {id:"revenue",label:"Revenue",color:"#B45309"}
+]; }
 
 /* roadmap kosong untuk tahun tertentu (dipakai saat "+ Tahun baru") */
 function blankRoadmap(year){
@@ -540,6 +611,7 @@ function blankRoadmap(year){
     sprintDur:{}, numberAnchor:{pos:0, number:1},
     start:0, count:6,
     statuses:defaultStatuses(), squads:defaultSquads(), categories:defaultCategories(), requestors:defaultRequestors(),
+    efforts:defaultEfforts(), impacts:defaultImpacts(),
     items:[]
   };
 }
@@ -553,8 +625,9 @@ function sample(){
     sprintDur:{}, numberAnchor:{pos:0, number:1},
     start:s0, count:6,
     statuses:defaultStatuses(), squads:defaultSquads(), categories:defaultCategories(), requestors:defaultRequestors(),
+    efforts:defaultEfforts(), impacts:defaultImpacts(),
     items:[
-      {id:uid(), name:"Redesain SimQ Report", pic:"casemix", squad:"ai", status:"inprogress", category:"initiative", phases:[
+      {id:uid(), name:"Redesain SimQ Report", pic:"casemix", squad:"ai", status:"inprogress", category:"initiative", effort:"medium", impact:"efisiensi", phases:[
         {id:uid(),type:"assessment",s:t(s0,0),e:t(s0,0)},
         {id:uid(),type:"development",s:t(s0,1),e:t(s0+1,1)},
         {id:uid(),type:"testing",s:t(s0+2,0),e:t(s0+2,0)},
@@ -562,13 +635,13 @@ function sample(){
         {id:uid(),type:"sosialisasi",s:t(s0+3,0),e:t(s0+3,0)},
         {id:uid(),type:"golive",s:t(s0+3,1),e:t(s0+3,1)}
       ]},
-      {id:uid(), name:"Modul antrean pasien", pic:"", squad:"ops", status:"todo", category:"initiative", phases:[
+      {id:uid(), name:"Modul antrean pasien", pic:"", squad:"ops", status:"todo", category:"initiative", effort:"high", impact:"efisiensi", phases:[
         {id:uid(),type:"assessment",s:t(s0+1,0),e:t(s0+1,0)},
         {id:uid(),type:"development",s:t(s0+1,1),e:t(s0+2,1)},
         {id:uid(),type:"testing",s:t(s0+3,0),e:t(s0+3,0)},
         {id:uid(),type:"golive",s:t(s0+3,1),e:t(s0+3,1)}
       ]},
-      {id:uid(), name:"Integrasi pembayaran", pic:"marketing", squad:"pf", status:"hold", category:"cr", phases:[
+      {id:uid(), name:"Integrasi pembayaran", pic:"marketing", squad:"pf", status:"hold", category:"cr", effort:"high", impact:"revenue", phases:[
         {id:uid(),type:"assessment",s:t(s0+2,0),e:t(s0+2,0)},
         {id:uid(),type:"development",s:t(s0+2,1),e:t(s0+3,1)}
       ]}
@@ -577,9 +650,12 @@ function sample(){
 }
 
 let state = sample();
-let filters = { status:new Set(), squad:new Set(), category:new Set(), pic:new Set() };
+let filters = { status:new Set(), squad:new Set(), category:new Set(), pic:new Set(), effort:new Set(), impact:new Set() };
 let currentYear = null;
 let yearIndex = [];
+let myName = safeLS.get("roadmap:myName") || "";
+let pendingRemoteState = null;
+let unsubscribeYear = null;
 
 /* ---------- penyimpanan per tahun (Firestore) ---------- */
 const IDX_KEY = "roadmap:index";
@@ -601,9 +677,16 @@ async function kvSet(key, value){
 
 function normalizeState(d){
   d.statuses=d.statuses||[]; d.squads=d.squads||[]; d.categories=d.categories||[]; d.requestors=d.requestors||[];
+  d.efforts=d.efforts||[]; d.impacts=d.impacts||[];
   d.sprintDur=d.sprintDur||{}; d.numberAnchor=d.numberAnchor||{pos:0,number:1};
   d.items = Array.isArray(d.items) ? d.items : [];
+  d.activityLog = Array.isArray(d.activityLog) ? d.activityLog : [];
   return d;
+}
+function logActivity(action, detail){
+  state.activityLog = state.activityLog || [];
+  state.activityLog.unshift({name: myName||"Tanpa nama", action, detail, at: Date.now()});
+  if(state.activityLog.length>40) state.activityLog.length = 40;
 }
 let saveTimer=null;
 function save(){
@@ -621,6 +704,23 @@ async function loadYear(y){
   if(v){ try{ state = normalizeState(JSON.parse(v)); return; }catch(err){} }
   state = blankRoadmap(y);
 }
+function isAnyModalOpen(){ return document.querySelectorAll(".overlay.on").length>0; }
+function applyPendingRemoteIfAny(){
+  if(pendingRemoteState){ state = normalizeState(pendingRemoteState); pendingRemoteState=null; render(); }
+}
+function subscribeYear(y){
+  if(unsubscribeYear){ unsubscribeYear(); unsubscribeYear=null; }
+  if(!FIREBASE_READY) return;
+  unsubscribeYear = db.collection("roadmap_kv").doc(yearKey(y)).onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites) return; // abaikan echo dari tulisan sendiri
+    if(!snap.exists) return;
+    const val = snap.data().value; if(!val) return;
+    let parsed; try{ parsed = JSON.parse(val); }catch(err){ return; }
+    if(isAnyModalOpen()){ pendingRemoteState = parsed; return; }
+    state = normalizeState(parsed);
+    render();
+  }, err=>console.warn("Sinkron realtime bermasalah:", err));
+}
 async function loadAll(){
   const idxVal = await kvGet(IDX_KEY);
   if(idxVal){ try{ const v=JSON.parse(idxVal); if(Array.isArray(v)) yearIndex=v; }catch(err){} }
@@ -631,12 +731,14 @@ async function loadAll(){
     if(a){ try{ active=JSON.parse(a); }catch(err){} }
     currentYear = yearIndex.includes(active) ? active : yearIndex[yearIndex.length-1];
     await loadYear(currentYear);
+    subscribeYear(currentYear);
     return;
   }
   currentYear = new Date().getUTCFullYear();
   state = sample();
   yearIndex = [currentYear];
   await persistIndex(); await saveCurrentNow(); await persistActive(currentYear);
+  subscribeYear(currentYear);
 }
 function buildYearSelect(){
   const sel = document.getElementById("yearsel");
@@ -659,32 +761,42 @@ function renderLegend(){
 }
 
 /* ---------- filter bar ---------- */
-const FILTER_STATE_KEY = {status:"statuses", squad:"squads", category:"categories", pic:"requestors"};
-function filterGroup(kind, label){
-  const opts = state[FILTER_STATE_KEY[kind]];
-  const getKey = t=>t.id, getColor = t=>t.color, getLabel = t=>t.label;
+const FILTER_STATE_KEY = {status:"statuses", squad:"squads", category:"categories", pic:"requestors", effort:"efforts", impact:"impacts"};
+const FILTER_LABELS = {status:"Status", squad:"Squad", category:"Kategori", pic:"Requestor", effort:"Effort", impact:"Impact"};
+const FILTER_ORDER = ["status","squad","category","pic","effort","impact"];
+function filterGroup(kind){
+  const opts = state[FILTER_STATE_KEY[kind]] || [];
   const activeSet = filters[kind];
   const active = activeSet.size>0;
   const body = opts.length ? opts.map(o=>{
-    const key=getKey(o), lbl=getLabel(o), col=getColor(o);
-    const checked = activeSet.has(key) ? "checked" : "";
-    return `<label class="fopt"><input type="checkbox" data-fkind="${kind}" data-fkey="${esc(key)}" ${checked}><i style="background:${col}"></i>${esc(lbl)}</label>`;
+    const checked = activeSet.has(o.id) ? "checked" : "";
+    return `<label class="fopt"><input type="checkbox" data-fkind="${kind}" data-fkey="${esc(o.id)}" ${checked}><i style="background:${o.color}"></i>${esc(o.label)}</label>`;
   }).join("") : `<p class="mg-empty">Belum ada data.</p>`;
-  return `<details class="filt ${active?'active':''}"><summary>${label}${active?` (${activeSet.size})`:""}</summary><div class="fpanel">${body}</div></details>`;
+  return `<details class="filt ${active?'active':''}" data-kind="${kind}"><summary>${FILTER_LABELS[kind]}${active?` (${activeSet.size})`:""}</summary><div class="fpanel">${body}</div></details>`;
 }
 function renderFilters(){
   const el = document.getElementById("filterbar");
   const anyActive = Object.values(filters).some(s=>s.size>0);
   el.innerHTML = `<span class="flabel">Filter:</span>` +
-    filterGroup("status","Status") + filterGroup("squad","Squad") +
-    filterGroup("category","Kategori") + filterGroup("pic","Requestor") +
-    (anyActive ? `<button type="button" class="fclear" id="fclear">Bersihkan filter</button>` : "");
+    FILTER_ORDER.map(filterGroup).join("") +
+    `<button type="button" class="fclear" id="fclear" style="display:${anyActive?'':'none'}">Bersihkan filter</button>`;
+}
+function updateFilterChrome(kind){
+  const d = document.querySelector(`.filt[data-kind="${kind}"]`);
+  if(d){
+    const activeSet = filters[kind], active = activeSet.size>0;
+    d.classList.toggle("active", active);
+    d.querySelector("summary").textContent = FILTER_LABELS[kind] + (active?` (${activeSet.size})`:"");
+  }
+  const anyActive = Object.values(filters).some(s=>s.size>0);
+  const clearBtn = document.getElementById("fclear");
+  if(clearBtn) clearBtn.style.display = anyActive ? "" : "none";
 }
 document.getElementById("filterbar").addEventListener("change", e=>{
   const cb = e.target.closest('input[type=checkbox][data-fkind]'); if(!cb) return;
   const kind=cb.dataset.fkind, key=cb.dataset.fkey;
   if(cb.checked) filters[kind].add(key); else filters[kind].delete(key);
-  renderFilters(); render();
+  updateFilterChrome(kind); render();
 });
 document.getElementById("filterbar").addEventListener("click", e=>{
   if(e.target.id==="fclear"){
@@ -697,7 +809,9 @@ function passesFilters(it){
   return (filters.status.size===0 || filters.status.has(it.status||"")) &&
          (filters.squad.size===0 || filters.squad.has(it.squad||"")) &&
          (filters.category.size===0 || filters.category.has(it.category||"")) &&
-         (filters.pic.size===0 || filters.pic.has(it.pic||""));
+         (filters.pic.size===0 || filters.pic.has(it.pic||"")) &&
+         (filters.effort.size===0 || filters.effort.has(it.effort||"")) &&
+         (filters.impact.size===0 || filters.impact.has(it.impact||""));
 }
 
 /* ---------- sort: assessment terdekat dulu ---------- */
@@ -731,7 +845,53 @@ function groupConsecutive(arr, keyFn){
   return groups;
 }
 
+let viewMode = "roadmap";
+function buildViewTabs(){
+  const backlogCount = state.items.filter(it=>it.phases.length===0).length;
+  const el = document.getElementById("viewtabs");
+  el.innerHTML =
+    `<button type="button" class="${viewMode==='roadmap'?'on':''}" data-view="roadmap">Roadmap</button>` +
+    `<button type="button" class="${viewMode==='backlog'?'on':''}" data-view="backlog">Backlog${backlogCount?` (${backlogCount})`:''}</button>`;
+}
+document.getElementById("viewtabs").addEventListener("click", e=>{
+  const b=e.target.closest("[data-view]"); if(!b) return;
+  viewMode = b.dataset.view; render();
+});
+
 function render(){
+  document.getElementById("title").value = state.title;
+  buildViewTabs();
+  document.getElementById("sprintrange").style.display = viewMode==="backlog" ? "none" : "";
+  if(viewMode==="backlog") return renderBacklogView();
+  renderRoadmapView();
+}
+
+function renderBacklogView(){
+  const board = document.getElementById("board");
+  const items = state.items.filter(it=>it.phases.length===0).filter(passesFilters)
+    .sort((a,b)=>a.name.localeCompare(b.name));
+  document.getElementById("span-label").textContent = items.length+" project/fitur belum masuk roadmap";
+  if(!items.length){
+    board.innerHTML = `<div class="empty"><h2>Backlog kosong</h2><p>Project/fitur baru tanpa fase akan otomatis muncul di sini sampai dijadwalkan ke roadmap.</p></div>`;
+    return;
+  }
+  board.innerHTML = `<div class="backlog-wrap">` + items.map(it=>{
+    const badges = badge("statuses",it.status) + badge("squads",it.squad) + badge("categories",it.category) + badge("requestors",it.pic) + badge("efforts",it.effort) + badge("impacts",it.impact);
+    return `<div class="backlog-card">
+      <span class="bn">${esc(it.name)}</span>
+      ${badges ? `<span class="badges">${badges}</span>` : ""}
+      ${it.notes ? `<span class="bnotes">${esc(it.notes)}</span>` : ""}
+      <span class="bacts">
+        <button class="b2 dark" data-act="promote" data-item="${it.id}">+ Tambah ke roadmap</button>
+        <button class="b2" data-act="edit-item" data-item="${it.id}">Ubah</button>
+      </span>
+    </div>`;
+  }).join("") + `</div>`;
+}
+
+function renderRoadmapView(){
+  const board = document.getElementById("board");
+  if(!document.getElementById("inner")){ board.innerHTML = '<div class="inner" id="inner"></div>'; }
   const table = buildWeekTable(state.start, state.start+state.count-1);
   const n = table.length;
   if(n===0){ return; }
@@ -740,12 +900,11 @@ function render(){
   const first = table[0].flat, last = table[table.length-1].flat;
 
   const inner = document.getElementById("inner");
-  document.getElementById("title").value = state.title;
   document.getElementById("cnt").value = state.count;
   buildStartSelect();
 
-  const visible = state.items.filter(passesFilters).sort((a,b)=>sortKey(a)-sortKey(b));
-  const totalCount = state.items.length;
+  const visible = state.items.filter(it=>it.phases.length>0).filter(passesFilters).sort((a,b)=>sortKey(a)-sortKey(b));
+  const totalCount = state.items.filter(it=>it.phases.length>0).length;
   document.getElementById("span-label").textContent =
     fmtD(table[0].wStart)+" – "+fmtD(table[n-1].wEnd)+" · "+state.count+" sprint · "+n+" minggu · "+
     (visible.length===totalCount ? totalCount+" project/fitur" : visible.length+" dari "+totalCount+" project/fitur");
@@ -781,8 +940,10 @@ function render(){
 
   let body="";
   if(!visible.length){
-    body = totalCount===0
+    body = state.items.length===0
       ? `<div class="empty"><h2>Belum ada project/fitur di roadmap ini</h2><p>Mulai dengan satu project/fitur, lalu susun fasenya per minggu.</p><button class="btn-dark" data-act="add-item">Tambah project/fitur pertama</button></div>`
+      : totalCount===0
+      ? `<div class="empty"><h2>Semua project/fitur masih di Backlog</h2><p>Belum ada yang punya fase terjadwal. Buka tab Backlog untuk menambahkannya ke roadmap.</p></div>`
       : `<div class="empty"><h2>Tidak ada yang cocok dengan filter</h2><p>Coba ubah atau bersihkan filter yang aktif.</p></div>`;
   } else {
     body = visible.map(it=>{
@@ -812,12 +973,13 @@ function render(){
           style="grid-column:${ls+2} / span ${le-ls+1};grid-row:${(p._lane||0)+1};background:${meta.color}" title="${esc(tip)}">${grips}${inside}</button>`;
       }).join("");
 
-      const badges = badge("statuses",it.status) + badge("squads",it.squad) + badge("categories",it.category) + badge("requestors",it.pic);
+      const badges = badge("statuses",it.status) + badge("squads",it.squad) + badge("categories",it.category) + badge("requestors",it.pic) + badge("efforts",it.effort) + badge("impacts",it.impact);
 
       return `<div class="row item" data-row="${it.id}" style="grid-auto-rows:minmax(var(--lane),auto)">
         <div class="name" style="grid-row:1 / span ${totalLanes}">
           <span class="n">${esc(it.name)}</span>
           ${badges ? `<span class="badges">${badges}</span>` : ""}
+          ${it.notes ? `<span class="note-preview" title="${esc(it.notes)}">📝 ${esc(it.notes)}</span>` : ""}
           ${outside ? `<span class="off">${outside} fase di luar rentang</span>`:""}
           <span class="tools">
             <button class="tool" data-act="add-phase" data-item="${it.id}" title="Tambah fase">+</button>
@@ -851,9 +1013,38 @@ function buildStartSelect(){
 }
 
 /* ---------- modal fase ---------- */
+/* ---------- lock: cegah 2 orang edit item yang sama bersamaan ---------- */
+const LOCK_TTL = 60000; // 60 detik
+let myClientId = safeLS.get("roadmap:clientId");
+if(!myClientId){ myClientId = uid()+uid(); safeLS.set("roadmap:clientId", myClientId); }
+let lockedItemId = null;
+async function tryAcquireLock(itemId){
+  if(!FIREBASE_READY) return {ok:true};
+  const ref = db.collection("roadmap_locks").doc(itemId);
+  try{
+    const snap = await ref.get();
+    if(snap.exists){
+      const d = snap.data();
+      if(d.clientId!==myClientId && (Date.now()-(d.at||0))<LOCK_TTL){
+        return {ok:false, name:d.name||"seseorang"};
+      }
+    }
+    await ref.set({name:myName||"Tanpa nama", clientId:myClientId, at:Date.now()});
+    lockedItemId = itemId;
+    return {ok:true};
+  }catch(err){ console.warn("Cek lock gagal, lanjut tanpa lock:", err); return {ok:true}; }
+}
+async function releaseLock(itemId){
+  lockedItemId = null;
+  if(!FIREBASE_READY || !itemId) return;
+  try{ await db.collection("roadmap_locks").doc(itemId).delete(); }catch(err){}
+}
+
 let phCtx=null;
-function openPhase(itemId, phaseId, presetFlat){
+async function openPhase(itemId, phaseId, presetFlat){
   const it=findItem(itemId); if(!it) return;
+  const lock = await tryAcquireLock(itemId);
+  if(!lock.ok){ alert(`"${it.name}" sedang diedit oleh ${lock.name}. Coba lagi sebentar.`); return; }
   const p = phaseId ? findPhase(itemId,phaseId) : null;
   phCtx = {itemId, phaseId, type: p ? p.type : nextType(it)};
   document.getElementById("ph-title").textContent = p ? "Ubah fase" : "Tambah fase";
@@ -883,28 +1074,40 @@ function fillTagSelect(id,kind,current){
   const el=document.getElementById(id);
   el.innerHTML = `<option value="">–</option>` + state[kind].map(t=>`<option value="${t.id}" ${t.id===current?"selected":""}>${esc(t.label)}</option>`).join("");
 }
-function openItem(id){
+async function openItem(id){
+  if(id){
+    const it0=findItem(id);
+    const lock = await tryAcquireLock(id);
+    if(!lock.ok){ alert(`"${it0?it0.name:'Item ini'}" sedang diedit oleh ${lock.name}. Coba lagi sebentar.`); return; }
+  }
   itCtx = id || null;
   const it = id ? findItem(id) : null;
   document.getElementById("it-title").textContent = it ? "Ubah project/fitur" : "Tambah project/fitur";
   document.getElementById("it-name").value = it ? it.name : "";
+  document.getElementById("it-notes").value = it ? (it.notes||"") : "";
   fillTagSelect("it-pic","requestors", it?it.pic:"");
   fillTagSelect("it-squad","squads", it?it.squad:"");
   fillTagSelect("it-cat","categories", it?it.category:"");
   fillTagSelect("it-status","statuses", it?it.status:(state.statuses[0]?state.statuses[0].id:""));
+  fillTagSelect("it-effort","efforts", it?it.effort:"");
+  fillTagSelect("it-impact","impacts", it?it.impact:"");
   document.getElementById("it-del").style.display = it ? "" : "none";
   show("ov-item");
   setTimeout(()=>document.getElementById("it-name").focus(),60);
 }
 
 function show(id){ document.getElementById(id).classList.add("on"); }
-function hide(id){ document.getElementById(id).classList.remove("on"); }
+function hide(id){
+  document.getElementById(id).classList.remove("on");
+  if((id==="ov-item"||id==="ov-phase") && lockedItemId){ releaseLock(lockedItemId); }
+  if(!document.querySelectorAll(".overlay.on").length) applyPendingRemoteIfAny();
+}
 function commit(){ render(); save(); }
 
 /* ---------- kelola status / squad / kategori ---------- */
 let mgCtx=null;
-const MG_TITLES = {statuses:"Kelola status", squads:"Kelola squad", categories:"Kelola kategori", requestors:"Kelola requestor"};
-const MG_FIELD  = {statuses:"status", squads:"squad", categories:"category", requestors:"pic"};
+const MG_TITLES = {statuses:"Kelola status", squads:"Kelola squad", categories:"Kelola kategori", requestors:"Kelola requestor", efforts:"Kelola effort", impacts:"Kelola impact"};
+const MG_FIELD  = {statuses:"status", squads:"squad", categories:"category", requestors:"pic", efforts:"effort", impacts:"impact"};
 function openManage(kind){
   mgCtx=kind;
   document.getElementById("mg-title").textContent = MG_TITLES[kind];
@@ -942,10 +1145,13 @@ document.getElementById("mg-close").addEventListener("click", ()=>{
   hide("ov-manage");
   if(document.getElementById("ov-item").classList.contains("on")){
     const pc=document.getElementById("it-pic").value, sq=document.getElementById("it-squad").value, ca=document.getElementById("it-cat").value, st=document.getElementById("it-status").value;
+    const ef=document.getElementById("it-effort").value, im=document.getElementById("it-impact").value;
     fillTagSelect("it-pic","requestors", findTag("requestors",pc)?pc:"");
     fillTagSelect("it-squad","squads", findTag("squads",sq)?sq:"");
     fillTagSelect("it-cat","categories", findTag("categories",ca)?ca:"");
     fillTagSelect("it-status","statuses", findTag("statuses",st)?st:"");
+    fillTagSelect("it-effort","efforts", findTag("efforts",ef)?ef:"");
+    fillTagSelect("it-impact","impacts", findTag("impacts",im)?im:"");
   }
   renderFilters(); render();
 });
@@ -1021,12 +1227,15 @@ document.addEventListener("click", e=>{
   if(act==="add-item") openItem(null);
   if(act==="edit-item") openItem(t.dataset.item);
   if(act==="add-phase") openPhase(t.dataset.item, null, encodeFlat(state.start,0));
+  if(act==="promote"){ viewMode="roadmap"; openPhase(t.dataset.item, null, encodeFlat(state.start,0)); }
   if(act==="cell") openPhase(t.dataset.item, null, +t.dataset.q);
   if(act==="phase" && !justDragged) openPhase(t.dataset.item, t.dataset.phase);
   if(act==="mg-squad") openManage("squads");
   if(act==="mg-status") openManage("statuses");
   if(act==="mg-category") openManage("categories");
   if(act==="mg-requestor") openManage("requestors");
+  if(act==="mg-effort") openManage("efforts");
+  if(act==="mg-impact") openManage("impacts");
   if(act==="open-sprint") openSprintModal(+t.dataset.pos);
 });
 
@@ -1082,13 +1291,19 @@ document.getElementById("ph-save").addEventListener("click", ()=>{
   const s=+document.getElementById("ph-s").value;
   const ms=PHASES[phCtx.type].milestone;
   const en = ms ? s : Math.max(s, +document.getElementById("ph-e").value);
+  const isNew = !phCtx.phaseId;
   if(phCtx.phaseId){ Object.assign(findPhase(phCtx.itemId,phCtx.phaseId), {type:phCtx.type,s,e:en}); }
   else { it.phases.push({id:uid(), type:phCtx.type, s, e:en}); }
+  logActivity(isNew?"menambah fase":"mengubah fase", `${it.name} — ${PHASES[phCtx.type].label}`);
   hide("ov-phase"); commit();
 });
 document.getElementById("ph-del").addEventListener("click", ()=>{
   const it=findItem(phCtx.itemId);
-  if(it) it.phases = it.phases.filter(p=>p.id!==phCtx.phaseId);
+  if(it){
+    const p = findPhase(phCtx.itemId, phCtx.phaseId);
+    it.phases = it.phases.filter(p=>p.id!==phCtx.phaseId);
+    logActivity("menghapus fase", `${it.name}${p?' — '+PHASES[p.type].label:''}`);
+  }
   hide("ov-phase"); commit();
 });
 document.getElementById("ph-cancel").addEventListener("click", ()=>hide("ov-phase"));
@@ -1100,12 +1315,19 @@ document.getElementById("it-save").addEventListener("click", ()=>{
   const squad=document.getElementById("it-squad").value;
   const category=document.getElementById("it-cat").value;
   const status=document.getElementById("it-status").value;
-  if(itCtx){ Object.assign(findItem(itCtx), {name,pic,squad,category,status}); }
-  else { state.items.push({id:uid(), name, pic, squad, category, status, phases:[]}); }
+  const effort=document.getElementById("it-effort").value;
+  const impact=document.getElementById("it-impact").value;
+  const notes=document.getElementById("it-notes").value;
+  const isNew = !itCtx;
+  if(itCtx){ Object.assign(findItem(itCtx), {name,pic,squad,category,status,effort,impact,notes}); }
+  else { state.items.push({id:uid(), name, pic, squad, category, status, effort, impact, notes, phases:[]}); }
+  logActivity(isNew?"menambah project/fitur":"mengubah project/fitur", name);
   hide("ov-item"); renderFilters(); commit();
 });
 document.getElementById("it-del").addEventListener("click", ()=>{
+  const it = findItem(itCtx);
   state.items = state.items.filter(i=>i.id!==itCtx);
+  if(it) logActivity("menghapus project/fitur", it.name);
   hide("ov-item"); renderFilters(); commit();
 });
 document.getElementById("it-cancel").addEventListener("click", ()=>hide("ov-item"));
@@ -1119,15 +1341,15 @@ document.addEventListener("click", e=>{
 /* ---------- kontrol atas ---------- */
 document.getElementById("title").addEventListener("input", e=>{ state.title=e.target.value; save(); });
 document.getElementById("startsel").addEventListener("change", e=>{ state.start=+e.target.value; commit(); });
-document.getElementById("cnt").addEventListener("change", e=>{ state.count=Math.min(24,Math.max(2,+e.target.value||6)); commit(); });
+document.getElementById("cnt").addEventListener("change", e=>{ state.count=Math.min(300,Math.max(2,+e.target.value||6)); commit(); });
 document.getElementById("today-btn").addEventListener("click", ()=>{ state.start=findSprintPosForDate(NOW_MS); commit(); });
 document.getElementById("add-item").addEventListener("click", ()=>openItem(null));
 document.getElementById("yearsel").addEventListener("change", async e=>{
   const y = +e.target.value;
   if(y===currentYear) return;
   await saveCurrentNow();
-  currentYear = y; await loadYear(y); await persistActive(y);
-  filters = { status:new Set(), squad:new Set(), category:new Set(), pic:new Set() };
+  currentYear = y; await loadYear(y); subscribeYear(y); await persistActive(y);
+  filters = { status:new Set(), squad:new Set(), category:new Set(), pic:new Set(), effort:new Set(), impact:new Set() };
   buildYearSelect(); renderFilters(); render();
 });
 document.getElementById("year-add").addEventListener("click", ()=>{
@@ -1148,12 +1370,38 @@ document.getElementById("yr-save").addEventListener("click", async ()=>{
     yearIndex.push(y); yearIndex.sort((a,b)=>a-b);
     await persistIndex(); await saveCurrentNow();
   }
+  subscribeYear(y);
   await persistActive(y);
-  filters = { status:new Set(), squad:new Set(), category:new Set(), pic:new Set() };
+  filters = { status:new Set(), squad:new Set(), category:new Set(), pic:new Set(), effort:new Set(), impact:new Set() };
   buildYearSelect(); renderFilters(); render();
   hide("ov-year");
 });
 window.addEventListener("resize", ()=>requestAnimationFrame(stickyOffsets));
+
+/* ---------- identitas ringan & riwayat ---------- */
+function ensureIdentity(){
+  if(safeLS.get("roadmap:askedName")) return;
+  show("ov-whoami");
+}
+document.getElementById("who-save").addEventListener("click", ()=>{
+  const v = document.getElementById("who-name").value.trim();
+  myName = v; safeLS.set("roadmap:myName", v); safeLS.set("roadmap:askedName","1");
+  hide("ov-whoami");
+});
+function renderHistory(){
+  const list = state.activityLog||[];
+  const el = document.getElementById("hist-list");
+  el.innerHTML = list.length ? list.map(e=>{
+    const t = new Date(e.at);
+    const timeStr = t.toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"});
+    return `<div style="padding:9px 0;border-bottom:1px solid var(--line);font-size:13px">
+      <b>${esc(e.name||"Tanpa nama")}</b> ${esc(e.action)}${e.detail?` — <span style="color:var(--ink-soft)">${esc(e.detail)}</span>`:""}
+      <div style="color:var(--muted);font-size:11px;margin-top:2px">${timeStr}</div>
+    </div>`;
+  }).join("") : `<p class="mg-empty">Belum ada riwayat perubahan.</p>`;
+}
+document.getElementById("history-btn").addEventListener("click", ()=>{ renderHistory(); show("ov-history"); });
+document.getElementById("hist-close").addEventListener("click", ()=>hide("ov-history"));
 
 /* ---------- mulai ---------- */
 (async function init(){
@@ -1161,13 +1409,14 @@ window.addEventListener("resize", ()=>requestAnimationFrame(stickyOffsets));
   if(!FIREBASE_READY){
     document.getElementById("filterbar").insertAdjacentHTML("afterend",
       `<div style="background:#FFF6E0;color:#8A5A0E;padding:10px 20px;font-size:13px;border-bottom:1px solid var(--line)">
-        ⚠️ Konfigurasi Firebase belum diisi — perubahan tidak akan tersimpan. Lihat komentar "ISI KONFIGURASI FIREBASE DI SINI" di kode.
+        ⚠️ Mode pratinjau/offline — perubahan tidak tersimpan ke cloud (normal kalau ini dibuka di preview Claude; setelah di-deploy ke GitHub Pages, penyimpanan otomatis aktif).
       </div>`);
   }
   await loadAll();
   buildYearSelect();
   renderFilters();
   render();
+  ensureIdentity();
 })();
 </script>
 </body>
